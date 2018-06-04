@@ -25,7 +25,7 @@ NonValidatedRedLists <- NonValidatedRedListsSource %<>%
   mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/"
          , rightsHolder = "INBO", accessRights = "http://www.inbo.be/en/norms-for-data-use"
          , datasetName = "UnValidated Red Lists of Flanders"
-         , locationID = "http://marineregions.org/mrgid/2469"
+         , locationID = "ISO_3166-2:BE-VLG"
          , locality = "Flanders", countryCode = "BE", occurrencestatus = "present" )  %>%
   rename(scientificName = SpeciesnameAsPublished) %>%
   
@@ -50,9 +50,23 @@ NonValidatedRedLists <- NonValidatedRedListsSource %<>%
          , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
          , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders"))       %>%
   
-mutate(threadStatus = recode (threadStatus, "Geografisch beperkt" = "Geographically Limited","Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent","Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)","Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)
-","Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)","Niet bedreigd" = "Least Concern (LC)","Least concern"="Least Concern (LC)","Sterk bedreigd"="Critically Endangered (CR)", "Vulnerable" = "Vulnerable (VU)","Verdwenen"= "Disappeared","Waarschijnlijk bedreigd"="Probably Endangered","Vermoedelijk bedreigd"="Presumably Threatened
-","Vatbaar voor bedreiging"="Vulnerable to threat","Critically endangered"="Critically Endangered (CR)","Critically Endangered"="Critically Endangered (CR)", "Endangered"= "Endangered (EN)","Regionally extinct"="Regionally extinct (RE)")) %>%
+   mutate(threadStatus = recode (threadStatus
+          , "Geografisch beperkt" = "Geographically Limited"
+          , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
+          , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
+          , "Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
+          , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
+          , "Niet bedreigd" = "Least Concern (LC)"
+          , "Least concern"="Least Concern (LC)"
+          , "Sterk bedreigd"="Critically Endangered (CR)"
+          , "Vulnerable" = "Vulnerable (VU)"
+          , "Verdwenen"= "Disappeared"
+          , "Waarschijnlijk bedreigd"="Probably Endangered"
+          , "Vermoedelijk bedreigd"="Presumably Threatened"
+          , "Vatbaar voor bedreiging"="Vulnerable to threat"
+          , "Critically endangered"="Critically Endangered (CR)"
+          , "Critically Endangered"="Critically Endangered (CR)"
+          , "Endangered"= "Endangered (EN)","Regionally extinct"="Regionally extinct (RE)")) %>%
   rename(vernacularName = SpeciesnameDutch) %>%
   
   
@@ -60,8 +74,27 @@ mutate(threadStatus = recode (threadStatus, "Geografisch beperkt" = "Geographica
   request_species_information(name_col = "scientificName" 
                               , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) %>%
   
-mutate(threadStatus = recode (threadStatus, "Geografisch beperkt" = "Geographically Limited (NT)","Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent","Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)","Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)
-","Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)","Niet bedreigd" = "Least Concern (LC)","Least concern"="Least Concern (LC)","Sterk bedreigd"="Critically Endangered (EN)", "Vulnerable" = "Vulnerable (VU)","Verdwenen"= "Disappeared (RE)","Waarschijnlijk bedreigd"="Probably Endangered (NT)","Vermoedelijk bedreigd"="Presumably Threatened (DD/PT)","Vatbaar voor bedreiging"="Vulnerable to threat (NT)","Critically endangered"="Critically Endangered (CR)","Critically Endangered"="Critically Endangered (CR)", "Endangered"= "Endangered (EN)","Regionally extinct"="Regionally extinct (RE)","Disappeared"="Disapeared (RE)","Near threatened"="Near Threatened (NT)","Probably Endangered"="Probably Endangered (DD/PT)","Geographically Limited"="Geographically Limited (NT)"))
+  mutate(threadStatus = recode (threadStatus
+      , "Geografisch beperkt" = "Geographically Limited (NT)"
+      , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
+      , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)","Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
+      , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
+      , "Niet bedreigd" = "Least Concern (LC)"
+      , "Least concern"="Least Concern (LC)"
+      , "Sterk bedreigd"="Critically Endangered (EN)"
+      , "Vulnerable" = "Vulnerable (VU)"
+      , "Verdwenen"= "Disappeared (RE)"
+      , "Waarschijnlijk bedreigd"="Probably Endangered (NT)"
+      , "Vermoedelijk bedreigd"="Presumably Threatened (DD/PT)"
+      , "Vatbaar voor bedreiging"="Vulnerable to threat (NT)"
+      , "Critically endangered"="Critically Endangered (CR)"
+      , "Critically Endangered"="Critically Endangered (CR)"
+      , "Endangered"= "Endangered (EN)"
+      , "Regionally extinct"="Regionally extinct (RE)"
+      , "Disappeared"="Disapeared (RE)"
+      , "Near threatened"="Near Threatened (NT)"
+      , "Probably Endangered"="Probably Endangered (DD/PT)"
+      , "Geographically Limited"="Geographically Limited (NT)"))
   
 
 
