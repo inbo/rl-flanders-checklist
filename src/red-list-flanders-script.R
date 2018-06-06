@@ -50,23 +50,7 @@ NonValidatedRedLists <- NonValidatedRedListsSource %<>%
          , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
          , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders"))   %>%
   
-#   mutate(threadStatus = recode (threadStatus
-#          , "Geografisch beperkt" = "Geographically Limited (NT)"
-#          , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
-#          , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
-#          , "Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
-#          , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
-#          , "Niet bedreigd" = "Least Concern (LC)"
-#          , "Least concern"="Least Concern (LC)"
-#          , "Sterk bedreigd"="Critically Endangered (CR)"
-#          , "Vulnerable" = "Vulnerable (VU)"
-#          , "Verdwenen"= "Disappeared"
-#          , "Waarschijnlijk bedreigd"="Probably Endangered"
-#          , "Vermoedelijk bedreigd"="Presumably Threatened"
-#          , "Vatbaar voor bedreiging"="Vulnerable to threat"
-#          , "Critically endangered"="Critically Endangered (CR)"
-#          , "Critically Endangered"="Critically Endangered (CR)"
-#          , "Endangered"= "Endangered (EN)","Regionally extinct"="Regionally extinct (RE)")) %>% 
+
   
 rename(vernacularName = SpeciesnameDutch) %>%  
   
@@ -103,7 +87,7 @@ ValidatedRedLists <- ValidatedRedListsSource %<>%
   # Steps to produce the output
   mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/"
          , rightsHolder = "INBO", accessRights = "http://www.inbo.be/en/norms-for-data-use"
-         , datasetName = "UnValidated Red Lists of Flanders"
+         , datasetName = "Validated Red Lists of Flanders"
          , locationID = "ISO_3166-2:BE-VLG"
          , locality = "Flanders", countryCode = "BE", occurrencestatus = "present" )  %>%
   rename(scientificName = SpeciesnameAsPublished) %>%
@@ -182,7 +166,7 @@ rename(vernacularName = SpeciesnameDutch) %>%
 View(NonValidatedRedLists)
 View(ValidatedRedLists)
 
-write.csv(NonValidatedRedLists, file = "./data/interim/NonValidatedRedLists.csv", na = "", 
+write.csv(NonValidatedRedLists, file = "./data/interim/unValidatedRedLists.csv", na = "", 
           row.names = FALSE, fileEncoding = "UTF-8")
 write.csv(ValidatedRedLists, file = "./data/interim/ValidatedRedLists.csv", na = "", 
           row.names = FALSE, fileEncoding = "UTF-8")
