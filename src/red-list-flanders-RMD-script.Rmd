@@ -92,7 +92,7 @@ Preview data:
 
 ```{r}
 head(raw_data)
-head(taxon)
+
 ```
 
 # Create taxon core
@@ -102,37 +102,35 @@ taxon <- raw_data
 ```
 
 ## Term mapping
+Map the data to [Darwin Core Taxon](http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml).
 
 ### language
-### license
-### rightsHolder
-### datasetID
-### datasetName
-### references
-### taxonID
-### scientificName
-### kingdom
-### phylum
-### class
-### order
-
-Map the data to [Darwin Core Taxon](http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml).
 ```{r}
-dwc_taxon_file <- taxon %<>%
-   # Steps to produce the output
-  mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/"
-         , rightsHolder = "INBO", accessRights = "http://www.inbo.be/en/norms-for-data-use"
-         , datasetName = "UnValidated Red Lists of Flanders"
-         , locationID = "ISO_3166-2:BE-VLG"
-         , locality = "Flanders", countryCode = "BE", occurrencestatus = "present" )  %>%
-  rename(scientificName = raw_speciesname_as_published) %>%
-  rename(taxonID = raw_unique_id) %>%
-  
-  # add column threadStatus
-  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","Endangered (EN)" )) %>%
-  
-  # List Code translation
-  mutate(threadStatus = str_replace(threadStatus,"Bedreigd","Endangered (EN)" )
+taxon %<>% mutate(language = "en")
+
+```
+### license
+```{r}
+taxon %<>% mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/")
+```
+### rightsHolder
+```{r}
+taxon %<>% mutate(rightsHolder = "INBO")
+```
+
+### datasetID
+```{r}
+taxon  %<>% mutate(datasetID = "to_be_completed")
+```
+### datasetName
+```{r}
+taxon %<>% mutate(datasetName = "Validated Red Lists Flanders Flanders, Belgium")
+```
+### treadStatus
+```{r}
+taxon %<>%  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","Endangered (EN)" ) 
+
+         , threadStatus = str_replace(threadStatus,"Bedreigd","Endangered (EN)" )
          , threadStatus = str_replace(threadStatus, "Kwetsbaar", "Vulnerable (VU)")
          , threadStatus = str_replace(threadStatus, "Ernstig bedreigd","Critically Endangered (CR)")
          , threadStatus = str_replace(threadStatus, "Momenteel niet bedreigd","Least Concern (LC)")
@@ -147,14 +145,10 @@ dwc_taxon_file <- taxon %<>%
          , threadStatus = str_replace(threadStatus, "Onvoldoende data ", "Data Deficient (DD)"	)
          , threadStatus = str_replace(threadStatus, "Regionaal uitgestorven","Regionally Extinct (EX)")
          , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
-         , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders"))   %>%
-  
+         , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders")) %>%
 
-  
-rename(vernacularName = raw_speciesname_dutch) %>%  
-  
- 
-mutate(threadStatus = recode (threadStatus
+
+ mutate(threadStatus = recode (threadStatus
       , "Geografisch beperkt" = "Geographically Limited (NT)"
       , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
       , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
@@ -175,19 +169,44 @@ mutate(threadStatus = recode (threadStatus
       , "Disappeared"="Disapeared (RE)"
       , "Near threatened"="Near Threatened (NT)"
       , "Probably Endangered"="Probably Endangered (DD/PT)"
-      , "Geographically Limited"="Geographically Limited (NT)")) %>%
+      , "Geographically Limited"="Geographically Limited (NT)")) 
   
+```
+### scientificName
+```{r}
+taxon %<>% rename(scientificName = raw_speciesname_as_published)
+```
 
-#   request_species_information(name_col = "scientificName") %>%
-   request_species_information(name_col = "scientificName" 
-                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+###locationID
 
+```{r}
+taxon%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
+  
+```
+
+###occurrenceStatus
+
+```{r}
+taxon %<>% mutate(occurrenceStatus = "present")
+```
+
+###taxonID
+```{r}
+taxon %<>% rename(taxonID = raw_unique_id)
 ```
 
 
+Preview data:
 
+```{r}
+head(raw_data)
+head(taxon)
+```
 
-
+### vernacularName
+```{r}
+taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
+```
 
 
  
@@ -204,6 +223,20 @@ Sort on `taxonID`:
 ```{r}
 taxon %<>% arrange(taxonID)
 ```
+
+###Request Species Information
+
+```{r warning=TRUE}
+dwc_taxon_file <- taxon  %<>%
+
+#   request_species_information(name_col = "scientificName") %>%
+   request_species_information(name_col = "scientificName" 
+                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+
+```
+
+
+
 
 Preview data:
 
