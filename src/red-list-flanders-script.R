@@ -166,9 +166,9 @@ rename(vernacularName = SpeciesnameDutch) %>%
 View(NonValidatedRedLists)
 View(ValidatedRedLists)
 
-write.csv(NonValidatedRedLists, file = "./data/interim/unValidatedRedLists.csv", na = "", 
+write.csv(NonValidatedRedLists, file = "./data/interim/unvalidated\unValidatedRedLists.csv", na = "", 
           row.names = FALSE, fileEncoding = "UTF-8")
-write.csv(ValidatedRedLists, file = "./data/interim/ValidatedRedLists.csv", na = "", 
+write.csv(ValidatedRedLists, file = "./data/interim/validated\ValidatedRedLists.csv", na = "", 
           row.names = FALSE, fileEncoding = "UTF-8")
 
 
