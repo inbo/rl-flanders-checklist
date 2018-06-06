@@ -180,7 +180,7 @@ rename(vernacularName = SpeciesnameDutch) %>%
 
 
 View(NonValidatedRedLists)
-View(ValidatedRedListsSource)
+View(ValidatedRedLists)
 
 write.csv(NonValidatedRedLists, file = "./data/interim/NonValidatedRedLists.csv", na = "", 
           row.names = FALSE, fileEncoding = "UTF-8")
