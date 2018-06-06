@@ -1,0 +1,266 @@
+---
+title: "Darwin Core mapping Validated Red List Flanders"
+subtitle: "For: Publication Red Lists Flanders, Belgium"
+author:
+- Lien Reyserhove
+- Peter Desmet
+- Dimitri Brosens
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+This document describes how we map the checklist data to Darwin Core. 
+
+# Setup
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Set locale (so we use UTF-8 character encoding):
+
+```{r}
+# This works on Mac OS X, might not work on other OS
+Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
+```
+
+Load libraries:
+
+```{r}
+library(tidyverse) # tidyverse
+library(magrittr)  # For %<>% pipes
+library(janitor)    # For cleaning input data
+library(knitr)      # For nicer (kable) tables
+library(readxl)     # To read excel files
+library(stringr)    # To perform string operations
+library(digest)     # To generate hashes
+library(rgbif)      # To Match GBIF
+library(assertable) # because it sneeded for rGBIF
+library(inborutils) # wrap GBIF api data
+library(readr)
+library(dplyr)
+library(assertthat)
+library(inborutils)
+```
+
+Set file paths (all paths should be relative to this script):
+
+```{r}
+# Raw files:
+
+raw_data_file = "data/raw/validated/ValidatedRedListsSource.csv"
+
+
+# Processed files:
+
+dwc_taxon_file = "./data/interim/validated/ValidatedRedLists.csv"
+```
+
+# Read and pre-process raw data
+
+Create a data frame `raw_data` from the source data:
+
+```{r}
+# Read the source data:
+raw_data <- read_delim("../data/raw/validated/ValidatedRedListsSource.csv",";", escape_double = FALSE, trim_ws = TRUE)
+```
+
+Clean the data somewhat: remove empty rows if present:
+
+```{r}
+raw_data %<>%
+  remove_empty("rows") %>%    # Remove empty rows
+  clean_names()               # Have sensible (lowercase) column names
+```
+
+
+
+## Further pre-processing:
+
+Add prefix `raw_` to all column names to avoid name clashes with Darwin Core terms:
+
+```{r}
+colnames(raw_data) <- paste0("raw_", colnames(raw_data))
+```
+ 
+Preview data:
+
+```{r}
+head(raw_data)
+head(taxon)
+```
+
+# Create taxon core
+
+```{r start_taxon}
+taxon <- raw_data
+```
+
+## Term mapping
+
+### language
+### license
+### rightsHolder
+### datasetID
+### datasetName
+### references
+### taxonID
+### scientificName
+### kingdom
+### phylum
+### class
+### order
+
+Map the data to [Darwin Core Taxon](http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml).
+```{r}
+dwc_taxon_file <- taxon %<>%
+   # Steps to produce the output
+  mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/"
+         , rightsHolder = "INBO", accessRights = "http://www.inbo.be/en/norms-for-data-use"
+         , datasetName = "UnValidated Red Lists of Flanders"
+         , locationID = "ISO_3166-2:BE-VLG"
+         , locality = "Flanders", countryCode = "BE", occurrencestatus = "present" )  %>%
+  rename(scientificName = raw_speciesname_as_published) %>%
+  rename(taxonID = raw_unique_id) %>%
+  
+  # add column threadStatus
+  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","Endangered (EN)" )) %>%
+  
+  # List Code translation
+  mutate(threadStatus = str_replace(threadStatus,"Bedreigd","Endangered (EN)" )
+         , threadStatus = str_replace(threadStatus, "Kwetsbaar", "Vulnerable (VU)")
+         , threadStatus = str_replace(threadStatus, "Ernstig bedreigd","Critically Endangered (CR)")
+         , threadStatus = str_replace(threadStatus, "Momenteel niet bedreigd","Least Concern (LC)")
+         , threadStatus = str_replace(threadStatus,"Momenteel niet in gevaar","Least Concern (LC)" )
+         , threadStatus = str_replace(threadStatus," Met uitsterven bedreigd","Critically Endangered (CR)" )
+         , threadStatus = str_replace(threadStatus,"Bijna in gevaar","Near Threatened (NT)" )
+         , threadStatus = str_replace(threadStatus,"Met uitsterven bedreigd","Critically Endangered (CR)" )
+         , threadStatus = str_replace(threadStatus,"Zeldzaam","Near Threatened (NT)" )
+         , threadStatus = str_replace(threadStatus, "Uitgestorven","Regionally Extinct (REX)")
+         , threadStatus = str_replace(threadStatus, "Achteruitgaand","Near Threatened (NT)")
+         , threadStatus = str_replace(threadStatus,"Onvoldoende gekend","Data Deficient (DD)" )
+         , threadStatus = str_replace(threadStatus, "Onvoldoende data ", "Data Deficient (DD)"	)
+         , threadStatus = str_replace(threadStatus, "Regionaal uitgestorven","Regionally Extinct (EX)")
+         , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
+         , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders"))   %>%
+  
+
+  
+rename(vernacularName = raw_speciesname_dutch) %>%  
+  
+ 
+mutate(threadStatus = recode (threadStatus
+      , "Geografisch beperkt" = "Geographically Limited (NT)"
+      , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
+      , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
+      , "Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
+      , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
+      , "Niet bedreigd" = "Least Concern (LC)"
+      , "Least concern"="Least Concern (LC)"
+      , "Sterk bedreigd"="Critically Endangered (EN)"
+      , "Vulnerable" = "Vulnerable (VU)"
+      , "Verdwenen"= "Disappeared (RE)"
+      , "Waarschijnlijk bedreigd"="Probably Endangered (NT)"
+      , "Vermoedelijk bedreigd"="Presumably Threatened (DD/PT)"
+      , "Vatbaar voor bedreiging"="Vulnerable to threat (NT)"
+      , "Critically endangered"="Critically Endangered (CR)"
+      , "Critically Endangered"="Critically Endangered (CR)"
+      , "Endangered"= "Endangered (EN)"
+      , "Regionally extinct"="Regionally extinct (RE)"
+      , "Disappeared"="Disapeared (RE)"
+      , "Near threatened"="Near Threatened (NT)"
+      , "Probably Endangered"="Probably Endangered (DD/PT)"
+      , "Geographically Limited"="Geographically Limited (NT)")) %>%
+  
+
+#   request_species_information(name_col = "scientificName") %>%
+   request_species_information(name_col = "scientificName" 
+                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+
+```
+
+
+
+
+
+
+
+ 
+## Post-processing
+
+Remove the original columns:
+
+```{r}
+taxon %<>% select(-starts_with("raw_"))
+```
+
+Sort on `taxonID`:
+
+```{r}
+taxon %<>% arrange(taxonID)
+```
+
+Preview data:
+
+```{r}
+head(taxon)
+```
+
+Save to CSV:
+
+```{r}
+write.csv(taxon, file = dwc_taxon_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+```
+
+# Create distribution extension
+
+```{r start_distribution}
+distribution <- raw_data
+```
+
+## Term mapping
+
+Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
+
+### taxonID
+### locationID
+### locality
+### countryCode
+### occurrenceStatus
+### establishmentMeans
+### eventDate
+### source
+
+## Post-processing
+
+Remove the original columns:
+
+```{r}
+distribution %<>% select(-starts_with("raw_"), -start_year, -end_year)
+```
+
+Sort on `taxonID`:
+
+```{r}
+distribution %<>% arrange(taxonID)
+```
+
+Preview data:
+
+```{r}
+distribution %>%
+  mutate(source = substr(source, 1, 10)) %>% # Shorten source to make it easier to display
+  head()
+```
+
+Save to CSV:
+
+```{r}
+write.csv(distribution, file = dwc_distribution_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+```
+
