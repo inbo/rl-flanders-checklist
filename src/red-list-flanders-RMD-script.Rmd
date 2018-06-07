@@ -197,11 +197,6 @@ taxon %<>% rename(taxonID = raw_unique_id)
 taxon %<>% mutate(taxonRank = "species")
 
 
-###countryCode
-
-```{r}
-taxon %<>% mutate(countryCode = "BE")
-```
 
 
 Preview data:
@@ -227,7 +222,11 @@ taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN
 taxon %<>% rename(kingdom = raw_kingdom)
 ```
 
+### references
 
+```{r}
+taxon %<>% rename(references = raw_reference)
+```
  
 ## Post-processing
 
@@ -285,6 +284,18 @@ distribution <- raw_data
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
 
 ### locality
+
+```{r}
+distribution %<>% mutate(locality = "Flanders")
+```
+
+
+###countryCode
+
+```{r}
+distribution %<>% mutate(countryCode = "BE")
+```
+
 
 ###locationID
 
