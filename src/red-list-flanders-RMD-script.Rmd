@@ -45,7 +45,7 @@ library(inborutils) # wrap GBIF api data
 library(readr)
 library(dplyr)
 library(assertthat)
-library(inborutils)
+
 ```
 
 Set file paths (all paths should be relative to this script):
@@ -229,9 +229,9 @@ taxontest <- head(taxon, n = 100)
 View(taxontest)
 ###Request Species Information
 
-```{r}
-dwc_taxon_file <- taxon  %<>%
-
+```{r warning=TRUE}
+dwc_taxon_file <- taxontest  %<>%
+ mutate(scientificName = as.character( scientificName )) %>%
  request_species_information(name_col = "scientificName") %>%
 #request_species_information(name_col = "scientificName" 
 #                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', #'kingdom','genus','class','confidence',  'synonym','status','family')) 
