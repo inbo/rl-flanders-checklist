@@ -66,7 +66,7 @@ Create a data frame `raw_data` from the source data:
 
 ```{r}
 # Read the source data:
-raw_data <- read_delim("../data/raw/validated/ValidatedRedListsSource.csv",";", escape_double = FALSE, trim_ws = TRUE)
+raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE)
 ```
 
 Clean the data somewhat: remove empty rows if present:
