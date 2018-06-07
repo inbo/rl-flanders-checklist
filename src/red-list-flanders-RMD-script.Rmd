@@ -46,7 +46,7 @@ library(readr)
 library(dplyr)
 library(assertthat)
 
-copy-info
+
 ```
 
 Set file paths (all paths should be relative to this script):
@@ -70,7 +70,7 @@ Create a data frame `raw_data` from the source data:
 
 ```{r}
 raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE)
-copy-info
+
 ```
 
 Clean the data somewhat: remove empty rows if present:
@@ -253,7 +253,7 @@ dwc_taxon_file <- taxon %>%
                                          'order','matchType', 'phylum', 'kingdom',
                                          'genus','class','confidence',  'synonym',
                                          'status','family')) 
-copy-info
+
 
 ```
 
