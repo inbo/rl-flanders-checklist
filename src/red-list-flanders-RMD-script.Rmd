@@ -36,7 +36,7 @@ library(tidyverse) # tidyverse
 library(magrittr)  # For %<>% pipes
 library(janitor)    # For cleaning input data
 library(knitr)      # For nicer (kable) tables
-library(readxl)     # To read excel files
+# library(readxl)     # To read excel files
 library(stringr)    # To perform string operations
 library(digest)     # To generate hashes
 library(rgbif)      # To Match GBIF
@@ -45,7 +45,6 @@ library(inborutils) # wrap GBIF api data
 library(readr)
 library(dplyr)
 library(assertthat)
-library(inborutils)
 ```
 
 Set file paths (all paths should be relative to this script):
