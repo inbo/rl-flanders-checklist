@@ -252,7 +252,7 @@ View(taxontest)
 
 ###Request Species Information
 ```{r warning=FALSE}
-dwc_taxon_file <- taxontest %>%
+taxon%<>%
    gbif_species_name_match(name_col = "scientificName", 
                            gbif_terms= c('usageKey', 'scientificName', 'rank', 
                                          'order','matchType', 'phylum', 'kingdom',
@@ -283,6 +283,11 @@ distribution <- raw_data
 ## Term mapping
 
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
+
+###taxonID
+```{r}
+distribution %<>% rename(taxonID = raw_unique_id)
+```
 
 ### locality
 
@@ -391,7 +396,7 @@ distribution %<>% rename(biome = raw_biome) %>%
 Remove the original columns:
 
 ```{r}
-distribution %<>% select(-starts_with("raw_"), -start_year, -end_year)
+distribution %<>% select(-starts_with("raw_"))
 ```
 
 Sort on `taxonID`:
