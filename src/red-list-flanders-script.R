@@ -19,8 +19,6 @@ NonValidatedRedListsSource <- read_delim("data/raw/unvalidated/NonValidatedRedLi
                                          ";", escape_double = FALSE, trim_ws = TRUE)
 
 
-
-NonValidatedRedLists <- NonValidatedRedListsSource %<>%
   # Steps to produce the output
   mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/"
          , rightsHolder = "INBO", accessRights = "http://www.inbo.be/en/norms-for-data-use"
@@ -79,9 +77,11 @@ mutate(threadStatus = recode (threadStatus
       , "Geographically Limited"="Geographically Limited (NT)")) %>%
   
 
-   request_species_information(name_col = "scientificName") %>%
+#   request_species_information(name_col = "scientificName") %>%
    request_species_information(name_col = "scientificName" 
                               , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+
+
 
 ValidatedRedLists <- ValidatedRedListsSource %<>%
   # Steps to produce the output
@@ -142,7 +142,7 @@ rename(vernacularName = SpeciesnameDutch) %>%
                                 , "Geographically Limited"="Geographically Limited (NT)")) %>%
   
   
-  request_species_information(name_col = "scientificName") %>%
+ # request_species_information(name_col = "scientificName") %>%
   request_species_information(name_col = "scientificName" 
                               , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
 
