@@ -195,6 +195,12 @@ taxon %<>% mutate(occurrenceStatus = "present")
 taxon %<>% rename(taxonID = raw_unique_id)
 ```
 
+###countryCode
+
+```{r}
+taxon %<>% mutate(countryCode = "BE")
+```
+
 
 Preview data:
 
@@ -206,6 +212,11 @@ head(taxon)
 ### vernacularName
 ```{r}
 taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
+```
+### kingdom
+
+```{r}
+taxon %<>% rename(kingdom = raw_kingdom)
 ```
 
 
@@ -224,15 +235,18 @@ Sort on `taxonID`:
 taxon %<>% arrange(taxonID)
 ```
 
+```{r}
 View(taxon)
 taxontest <- head(taxon, n = 100)
 View(taxontest)
+```
+
 ###Request Species Information
 
-```{r warning=TRUE}
+```{r warning=FALSE}
 dwc_taxon_file <- taxontest  %<>%
  mutate(scientificName = as.character( scientificName )) %>%
- request_species_information(name_col = "scientificName") %>%
+ request_species_information(name_col = "scientificName")
 #request_species_information(name_col = "scientificName" 
 #                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', #'kingdom','genus','class','confidence',  'synonym','status','family')) 
 
@@ -263,11 +277,7 @@ distribution <- raw_data
 
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
 
-### taxonID
-### locationID
 ### locality
-### countryCode
-### occurrenceStatus
 ### establishmentMeans
 ### eventDate
 ### source
