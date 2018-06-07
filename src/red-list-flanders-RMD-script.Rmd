@@ -224,14 +224,17 @@ Sort on `taxonID`:
 taxon %<>% arrange(taxonID)
 ```
 
+View(taxon)
+taxontest <- head(taxon, n = 100)
+View(taxontest)
 ###Request Species Information
 
-```{r warning=TRUE}
+```{r}
 dwc_taxon_file <- taxon  %<>%
 
-#   request_species_information(name_col = "scientificName") %>%
-   request_species_information(name_col = "scientificName" 
-                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+ request_species_information(name_col = "scientificName") %>%
+#request_species_information(name_col = "scientificName" 
+#                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', #'kingdom','genus','class','confidence',  'synonym','status','family')) 
 
 ```
 
