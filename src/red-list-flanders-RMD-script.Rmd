@@ -226,16 +226,14 @@ taxon %<>% arrange(taxonID)
 ###Request Species Information
 
 ```{r warning=TRUE}
-dwc_taxon_file <- taxon  %<>%
-
-#   request_species_information(name_col = "scientificName") %>%
-   request_species_information(name_col = "scientificName" 
-                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', 'kingdom','genus','class','confidence',  'synonym','status','family')) 
+dwc_taxon_file <- taxon %>%
+   gbif_species_name_match(name_col = "scientificName", 
+                           gbif_terms= c('usageKey', 'scientificName', 'rank', 
+                                         'order','matchType', 'phylum', 'kingdom',
+                                         'genus','class','confidence',  'synonym',
+                                         'status','family')) 
 
 ```
-
-
-
 
 Preview data:
 
