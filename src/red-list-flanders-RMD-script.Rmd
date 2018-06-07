@@ -59,8 +59,8 @@ raw_data_file <- "../data/raw/validated/ValidatedRedListsSource.csv"
 
 # Processed files:
 
-dwc_taxon_file <- "../data/interim/validated/ValidatedRedLists.csv"
-dwc_distribution_file = "../data/processed/dwc_checklist/distribution.csv"
+dwc_taxon_file <- "../data/processed/validated/taxonValidatedList.csv"
+dwc_distribution_file = "../data/processed/validated/distributionValidatedList.csv"
 ```
 
 # Read and pre-process raw data
