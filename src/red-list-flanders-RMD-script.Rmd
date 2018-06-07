@@ -52,12 +52,12 @@ Set file paths (all paths should be relative to this script):
 ```{r}
 # Raw files:
 
-raw_data_file = "data/raw/validated/ValidatedRedListsSource.csv"
+raw_data_file <- "data/raw/validated/ValidatedRedListsSource.csv"
 
 
 # Processed files:
 
-dwc_taxon_file = "./data/interim/validated/ValidatedRedLists.csv"
+dwc_taxon_file <- "./data/interim/validated/ValidatedRedLists.csv"
 ```
 
 # Read and pre-process raw data
