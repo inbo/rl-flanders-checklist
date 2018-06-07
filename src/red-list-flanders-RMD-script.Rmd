@@ -180,12 +180,7 @@ taxon %<>%  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","E
 taxon %<>% rename(scientificName = raw_speciesname_as_published)
 ```
 
-###locationID
 
-```{r}
-taxon%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
-  
-```
 
 ###occurrenceStatus
 
@@ -197,6 +192,10 @@ taxon %<>% mutate(occurrenceStatus = "present")
 ```{r}
 taxon %<>% rename(taxonID = raw_unique_id)
 ```
+
+###taxonRank
+taxon %<>% mutate(taxonRank = "species")
+
 
 ###countryCode
 
@@ -216,6 +215,12 @@ head(taxon)
 ```{r}
 taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
 ```
+
+### nomenclaturalCode
+
+taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN",raw_kingdom == "Plantae" ~ "ICBN"  )) 
+
+
 ### kingdom
 
 ```{r}
@@ -246,8 +251,8 @@ View(taxontest)
 
 
 ###Request Species Information
-```{r warning=TRUE}
-dwc_taxon_file <- taxon %>%
+```{r warning=FALSE}
+dwc_taxon_file <- taxontest %>%
    gbif_species_name_match(name_col = "scientificName", 
                            gbif_terms= c('usageKey', 'scientificName', 'rank', 
                                          'order','matchType', 'phylum', 'kingdom',
@@ -260,7 +265,7 @@ dwc_taxon_file <- taxon %>%
 Preview data:
 
 ```{r}
-head(taxon)
+head(dwc_taxon_file)
 ```
 
 Save to CSV:
@@ -280,8 +285,18 @@ distribution <- raw_data
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
 
 ### locality
+
+###locationID
+
+```{r}
+distribution%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
+  
+```
+
 ### establishmentMeans
+
 ### eventDate
+
 ### source
 
 ## Post-processing
