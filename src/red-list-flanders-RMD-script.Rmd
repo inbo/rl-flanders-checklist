@@ -36,7 +36,7 @@ library(tidyverse) # tidyverse
 library(magrittr)  # For %<>% pipes
 library(janitor)    # For cleaning input data
 library(knitr)      # For nicer (kable) tables
-library(readxl)     # To read excel files
+# library(readxl)     # To read excel files
 library(stringr)    # To perform string operations
 library(digest)     # To generate hashes
 library(rgbif)      # To Match GBIF
@@ -46,6 +46,7 @@ library(readr)
 library(dplyr)
 library(assertthat)
 
+copy-info
 ```
 
 Set file paths (all paths should be relative to this script):
@@ -53,12 +54,12 @@ Set file paths (all paths should be relative to this script):
 ```{r}
 # Raw files:
 
-raw_data_file = "data/raw/validated/ValidatedRedListsSource.csv"
+raw_data_file <- "../data/raw/validated/ValidatedRedListsSource.csv"
 
 
 # Processed files:
 
-dwc_taxon_file = "./data/interim/validated/ValidatedRedLists.csv"
+dwc_taxon_file <- "./data/interim/validated/ValidatedRedLists.csv"
 ```
 
 # Read and pre-process raw data
@@ -66,8 +67,10 @@ dwc_taxon_file = "./data/interim/validated/ValidatedRedLists.csv"
 Create a data frame `raw_data` from the source data:
 
 # Read the source data:
+
 ```{r}
-raw_data <- read_delim("../data/raw/validated/ValidatedRedListsSource.csv",";", escape_double = FALSE, trim_ws = TRUE)
+raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE)
+copy-info
 ```
 
 Clean the data somewhat: remove empty rows if present:
@@ -241,19 +244,18 @@ taxontest <- head(taxon, n = 100)
 View(taxontest)
 ```
 
-###Request Species Information
 
-```{r warning=FALSE}
-dwc_taxon_file <- taxontest  %<>%
- mutate(scientificName = as.character( scientificName )) %>%
- request_species_information(name_col = "scientificName")
-#request_species_information(name_col = "scientificName" 
-#                              , gbif_terms= c('usageKey','scientificName','rank','order','matchType', 'phylum', #'kingdom','genus','class','confidence',  'synonym','status','family')) 
+###Request Species Information
+```{r warning=TRUE}
+dwc_taxon_file <- taxon %>%
+   gbif_species_name_match(name_col = "scientificName", 
+                           gbif_terms= c('usageKey', 'scientificName', 'rank', 
+                                         'order','matchType', 'phylum', 'kingdom',
+                                         'genus','class','confidence',  'synonym',
+                                         'status','family')) 
+copy-info
 
 ```
-
-
-
 
 Preview data:
 
