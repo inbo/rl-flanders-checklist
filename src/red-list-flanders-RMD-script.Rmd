@@ -72,7 +72,7 @@ raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE
 Clean the data somewhat: remove empty rows if present:
 
 ```{r}
-raw_data %<>%
+raw_data <- raw_data %<>%
   remove_empty("rows") %>%    # Remove empty rows
   clean_names()               # Have sensible (lowercase) column names
 ```
