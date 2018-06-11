@@ -1,6 +1,6 @@
 ---
-title: "Darwin Core mapping Validated Red List Flanders"
-subtitle: "For: Publication Red Lists Flanders, Belgium"
+title: "Darwin Core mapping"
+subtitle: "For: Validated Red Lists Flanders, Belgium"
 author:
 - Dimitri Brosens
 - Lien Reyserhove
@@ -52,12 +52,10 @@ Set file paths (all paths should be relative to this script):
 
 ```{r}
 # Raw files:
-
 raw_data_file <- "../data/raw/validated/ValidatedRedListsSource.csv"
 
 
 # Processed files:
-
 dwc_taxon_file <- "../data/processed/validated/taxon.csv"
 dwc_distribution_file = "../data/processed/validated/distribution.csv"
 ```
@@ -123,7 +121,7 @@ taxon %<>% mutate(rightsHolder = "INBO")
 ### datasetID
 
 ```{r}
-taxon  %<>% mutate(datasetID = "to_be_completed")
+taxon  %<>% mutate(datasetID = "")
 ```
 
 ### datasetName
@@ -140,58 +138,41 @@ All information required for `treadStatus` is included in `raw_rlc_as_published`
 taxon %>% distinct(raw_rlc_as_published)
 ```
 
+Inspect values:
 
 ```{r}
 taxon %<>% mutate(threadStatus = recode()) 
 ```
 
 
-
 ```{r}
-taxon %<>% mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","Endangered (EN)" ) 
-
-         , threadStatus = str_replace(threadStatus,"Bedreigd","Endangered (EN)" )
-         , threadStatus = str_replace(threadStatus, "Kwetsbaar", "Vulnerable (VU)")
-         , threadStatus = str_replace(threadStatus, "Ernstig bedreigd","Critically Endangered (CR)")
-         , threadStatus = str_replace(threadStatus, "Momenteel niet bedreigd","Least Concern (LC)")
-         , threadStatus = str_replace(threadStatus,"Momenteel niet in gevaar","Least Concern (LC)" )
-         , threadStatus = str_replace(threadStatus," Met uitsterven bedreigd","Critically Endangered (CR)" )
-         , threadStatus = str_replace(threadStatus,"Bijna in gevaar","Near Threatened (NT)" )
-         , threadStatus = str_replace(threadStatus,"Met uitsterven bedreigd","Critically Endangered (CR)" )
-         , threadStatus = str_replace(threadStatus,"Zeldzaam","Near Threatened (NT)" )
-         , threadStatus = str_replace(threadStatus, "Uitgestorven","Regionally Extinct (REX)")
-         , threadStatus = str_replace(threadStatus, "Achteruitgaand","Near Threatened (NT)")
-         , threadStatus = str_replace(threadStatus,"Onvoldoende gekend","Data Deficient (DD)" )
-         , threadStatus = str_replace(threadStatus, "Onvoldoende data ", "Data Deficient (DD)"	)
-         , threadStatus = str_replace(threadStatus, "Regionaal uitgestorven","Regionally Extinct (EX)")
-         , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
-         , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders")) %>%
-
-
- mutate(threadStatus = recode (threadStatus
-      , "Geografisch beperkt" = "Geographically Limited (NT)"
-      , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
-      , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
-      , "Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
-      , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
-      , "Niet bedreigd" = "Least Concern (LC)"
-      , "Least concern"="Least Concern (LC)"
-      , "Sterk bedreigd"="Critically Endangered (EN)"
-      , "Vulnerable" = "Vulnerable (VU)"
-      , "Verdwenen"= "Disappeared (RE)"
-      , "Waarschijnlijk bedreigd"="Probably Endangered (NT)"
-      , "Vermoedelijk bedreigd"="Presumably Threatened (DD/PT)"
-      , "Vatbaar voor bedreiging"="Vulnerable to threat (NT)"
-      , "Critically endangered"="Critically Endangered (CR)"
-      , "Critically Endangered"="Critically Endangered (CR)"
-      , "Endangered"= "Endangered (EN)"
-      , "Regionally extinct"="Regionally extinct (RE)"
-      , "Disappeared"="Disapeared (RE)"
-      , "Near threatened"="Near Threatened (NT)"
-      , "Probably Endangered"="Probably Endangered (DD/PT)"
-      , "Geographically Limited"="Geographically Limited (NT)")) 
+taxon %<>% mutate(threadStatus = recode(raw_rlc_as_published,
+  "Bedreigd" =  "Endangered (EN)",
+  "Regionaal uitgestorven" = "Regionally Extinct (EX)",
+  "Momenteel niet in gevaar" = "Least Concern (LC)",
+  "Kwetsbaar" = "Vulnerable (VU)",
+  "Ernstig bedreigd" = "Critically Endangered (CR)",
+  "Bijna in gevaar" = "Near Threatened (NT)",
+  "Momenteel niet bedreigd" = "Least Concern (LC)", 
+  "Met uitsterven bedreigd" = "Critically Endangered (CR)",
+  "Zeldzaam" = "Near Threatened (NT)",
+  "Uitgestorven" = "Regionally Extinct (REX)",
+  "Achteruitgaand" = "Near Threatened (NT)",
+  "Onvoldoende gekend" = "Data Deficient (DD)",		
+  "Onvoldoende data" = "Data Deficient (DD)",
+  "Uitgestorven in Vlaanderen" = 	"Regionally Extinct (EX) in Flanders",
+  "Waarschijnlijk bedreigd"	= "Probably Endangered (NT)",
+  "Verdwenen uit Vlaanderen en het Brussels Gewest" = "",				
+  "Met verdwijning bedreigd" = ""
+))
   
 ```
+
+```{r}
+
+```
+
+
 
 ### scientificName
 
