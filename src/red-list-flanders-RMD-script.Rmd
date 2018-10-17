@@ -5,6 +5,7 @@ author:
 - Lien Reyserhove
 - Peter Desmet
 - Dimitri Brosens
+- Dirk Maes
 date: "`r Sys.Date()`"
 output:
   html_document:
