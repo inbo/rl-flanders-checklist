@@ -27,6 +27,5 @@ rsconnect/
 # Mac OS X
 .DS_Store
 .Rproj.user
-red-list-flanders-checklist.Rproj
 *.docx
 *.Rproj
