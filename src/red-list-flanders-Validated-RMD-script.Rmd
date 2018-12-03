@@ -1,6 +1,6 @@
 ---
-title: "Darwin Core mapping Validated Red List Flanders"
-subtitle: "For: Publication Red Lists Flanders, Belgium"
+title: "Darwin Core mapping"
+subtitle: "For:  Validated Red List Flanders, Belgium"
 author:
 - Lien Reyserhove
 - Peter Desmet
