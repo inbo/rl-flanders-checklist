@@ -14,7 +14,7 @@ output:
     number_sections: true
 ---
 
-This document describes how we map the checklist data to Darwin Core. 
+This document describes how we map the Red list data to Darwin Core. 
 
 # Setup
 

@@ -15,7 +15,7 @@ output:
     number_sections: true
 ---
 
-This document describes how we map the checklist data to Darwin Core. 
+This document describes how we map the red list data to Darwin Core. 
 
 # Setup
 
@@ -33,11 +33,10 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 Load libraries:
 
 ```{r}
-library(tidyverse) # tidyverse
-library(magrittr)  # For %<>% pipes
+library(tidyverse)  # tidyverse
+library(magrittr)   # For %<>% pipes
 library(janitor)    # For cleaning input data
 library(knitr)      # For nicer (kable) tables
-# library(readxl)     # To read excel files
 library(stringr)    # To perform string operations
 library(digest)     # To generate hashes
 library(rgbif)      # To Match GBIF
