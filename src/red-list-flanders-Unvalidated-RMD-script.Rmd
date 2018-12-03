@@ -314,6 +314,12 @@ distribution %<>%
 
 ### establishmentMeans
 
+### occurrenceRemarks
+
+```{r}
+#distribution %<>% rename(occurrenceRemarks = raw_iucn_criteria)
+```
+
 ### eventDate
 
 
@@ -340,13 +346,8 @@ distribution %<>%
                   rename(redListCriteria = raw_rlc) %>%
                   rename(criteria = raw_criteria) %>%
                   rename(redListCriteriaEurope = raw_rlc_europe)
-                  
                  
-                  
                  
-                  
-
-
 ```
 
 ## Post-processing
