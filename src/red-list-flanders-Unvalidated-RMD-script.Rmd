@@ -266,28 +266,12 @@ distribution%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
 ```
 
 ### treadStatus
+
+
 ```{r}
-distribution %<>%  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedreigd","Endangered (EN)" ) 
 
-         , threadStatus = str_replace(threadStatus,"Bedreigd","Endangered (EN)" )
-         , threadStatus = str_replace(threadStatus, "Kwetsbaar", "Vulnerable (VU)")
-         , threadStatus = str_replace(threadStatus, "Ernstig bedreigd","Critically Endangered (CR)")
-         , threadStatus = str_replace(threadStatus, "Momenteel niet bedreigd","Least Concern (LC)")
-         , threadStatus = str_replace(threadStatus,"Momenteel niet in gevaar","Least Concern (LC)" )
-         , threadStatus = str_replace(threadStatus," Met uitsterven bedreigd","Critically Endangered (CR)" )
-         , threadStatus = str_replace(threadStatus,"Bijna in gevaar","Near Threatened (NT)" )
-         , threadStatus = str_replace(threadStatus,"Met uitsterven bedreigd","Critically Endangered (CR)" )
-         , threadStatus = str_replace(threadStatus,"Zeldzaam","Near Threatened (NT)" )
-         , threadStatus = str_replace(threadStatus, "Uitgestorven","Regionally Extinct (REX)")
-         , threadStatus = str_replace(threadStatus, "Achteruitgaand","Near Threatened (NT)")
-         , threadStatus = str_replace(threadStatus,"Onvoldoende gekend","Data Deficient (DD)" )
-         , threadStatus = str_replace(threadStatus, "Onvoldoende data ", "Data Deficient (DD)"	)
-         , threadStatus = str_replace(threadStatus, "Regionaal uitgestorven","Regionally Extinct (EX)")
-         , threadStatus = str_replace(threadStatus, "maar mate waarin ongekend","uncertain rate")
-         , threadStatus = str_replace(threadStatus, "in Vlaanderen","in Flanders")) %>%
-
-
- mutate(threadStatus = recode (threadStatus
+distribution %<>%
+ mutate(threadStatus = recode (raw_rlc_as_published
       , "Geografisch beperkt" = "Geographically Limited (NT)"
       , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
       , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
@@ -308,7 +292,23 @@ distribution %<>%  mutate(threadStatus = str_replace(raw_rlc_as_published,"Bedre
       , "Disappeared"="Disapeared (RE)"
       , "Near threatened"="Near Threatened (NT)"
       , "Probably Endangered"="Probably Endangered (DD/PT)"
-      , "Geographically Limited"="Geographically Limited (NT)")) 
+      , "Geographically Limited"="Geographically Limited (NT)" 
+      , "Bedreigd"="Endangered (EN)" 
+      , "Kwetsbaar"= "Vulnerable (VU)"
+      , "Ernstig bedreigd"="Critically Endangered (CR)"
+      , "Momenteel niet bedreigd"="Least Concern (LC)"
+      , "Momenteel niet in gevaar"="Least Concern (LC)"
+      , "Met uitsterven bedreigd"="Critically Endangered (CR)"
+      , "Bijna in gevaar"="Near Threatened (NT)"
+      , "Met uitsterven bedreigd"="Critically Endangered (CR)"
+      , "Zeldzaam"="Near Threatened (NT)"
+      , "Uitgestorven"="Regionally Extinct (REX)"
+      , "Achteruitgaand"="Near Threatened (NT)"
+      , "Onvoldoende gekend"="Data Deficient (DD)"
+      , "Onvoldoende data "= "Data Deficient (DD)"
+      , "Regionaal uitgestorven"="Regionally Extinct (EX)"
+      , "maar mate waarin ongekend"="uncertain rate"
+      , "in Vlaanderen"="in Flanders")) 
   
 ```
 
