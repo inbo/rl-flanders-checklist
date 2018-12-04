@@ -1,0 +1,1403 @@
+---
+title: "Analyses Red Lists categories and life-history traits"
+author: "Dirk Maes"
+date: "3 december 2018"
+output:
+  word_document: default
+  html_document: default
+---
+#### Load libraries
+
+```{r setup, include = FALSE}
+library(knitr)
+library(RODBC)
+library(ggplot2)
+library(mgcv)
+library(MASS)
+library(ordinal)
+library(reshape)
+library(tidyr)
+library(xlsx)
+library(readxl)
+library(lme4)
+library(dplyr)
+opts_chunk$set(echo = FALSE)
+```
+
+### Set working directory and the path for the figures
+```{r, echo = TRUE, include = TRUE}
+setwd("C:/Users/dirk_maes/Google Drive/Publicaties/inprep2017_TraitRedListingFlandersAnalyses/")
+pathFig <- "Figuren/"
+```
+
+## **IUCN vs. regional criteria**
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datCriteria <- sqlQuery(MDB, "select * from [qryCriteria]")
+odbcClose(MDB)
+head(datCriteria, 3)
+nrow(datCriteria)
+
+table(datCriteria$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datCriteria$RLCNum <- factor(datCriteria$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Criteria <- clmm(RLCNum ~ Criteria + (1 | Family/Genus), data = datCriteria, Hess = TRUE) 
+summary(clmm.Criteria)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_IUCN <- c(-Inf, clmm.Criteria$coefficients[1:5], Inf)
+Theta_Regional <- Theta_IUCN - clmm.Criteria$coefficients["CriteriaRegional"]
+
+ResultatenCriteria <- data.frame(IUCN = round(diff(plogis(Theta_IUCN)), 4),
+			Regional = round(diff(plogis(Theta_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenCriteriaLong <- gather(ResultatenCriteria, Criteria, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenCriteriaLong, aes(x = RedList, y = Probability, colour = Criteria)) + geom_line(aes(group = Criteria), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigCriteria.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is significantly higher when using IUCN criteria than when using regional Flemish Red List criteria.**
+
+## **Kingdom**
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datKingdom <- sqlQuery(MDB, "select * from [qryKingdom]")
+odbcClose(MDB)
+head(datKingdom, 3)
+nrow(datKingdom)
+
+table(datKingdom$Kingdom, datKingdom$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datKingdom$RLCNum <- factor(datKingdom$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Kingdom <- clmm(RLCNum ~ Kingdom + Criteria + (1 | Family/Genus), data = datKingdom, Hess = TRUE)
+summary(clmm.Kingdom)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Invertebrate_IUCN <- c(-Inf, clmm.Kingdom$coefficients[1:5], Inf)
+Theta_Invertebrate_Regional <- Theta_Invertebrate_IUCN - clmm.Kingdom$coefficients["CriteriaRegional"]
+Theta_Plant_IUCN <- Theta_Invertebrate_IUCN - clmm.Kingdom$coefficients["KingdomPlant"]
+Theta_Plant_Regional <- Theta_Invertebrate_IUCN - clmm.Kingdom$coefficients["KingdomPlant"] - clmm.Kingdom$coefficients["CriteriaRegional"]
+Theta_Vertebrate_IUCN <- Theta_Invertebrate_IUCN - clmm.Kingdom$coefficients["KingdomVertebrate"]
+#Theta_Vertebrate_Regional <- Theta_Invertebrate_IUCN - clmm.Kingdom$coefficients["KingdomVertebrate"] - clmm.Kingdom$coefficients["CriteriaRegional"]
+
+ResultatenKingdom <- data.frame(Invertebrate_IUCN = round(diff(plogis(Theta_Invertebrate_IUCN)), 4),
+		Invertebrate_Regional = round(diff(plogis(Theta_Invertebrate_Regional)), 4),
+		Plant_IUCN = round(diff(plogis(Theta_Plant_IUCN)), 4),
+		Plant_Regional = round(diff(plogis(Theta_Plant_Regional)), 4),
+		Vertebrate_IUCN = round(diff(plogis(Theta_Vertebrate_IUCN)), 4),
+		#Vertebrate_Regional = round(diff(plogis(Theta_Vertebrate_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenKingdomLong <- gather(ResultatenKingdom, Group, Probability, -RedList)
+ResultatenKingdomLong <- separate(ResultatenKingdomLong, col = "Group", into = c("Kingdom", "Criteria"), sep = "_", remove = FALSE)
+head(ResultatenKingdomLong)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenKingdomLong, aes(x = RedList, y = Probability, group = Group, colour = Kingdom, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) +	theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigKingdom.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is not significantly different among invertebrates, plants and vertebrates.**
+
+## Biome
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datBiome <- sqlQuery(MDB, "select * from [qryBiome]")
+odbcClose(MDB)
+head(datBiome, 3)
+nrow(datBiome)
+
+table(datBiome$Biome, datBiome$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiome$RLCNum <- factor(datBiome$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Biome <- clmm(RLCNum ~ Biome + Criteria + (1 | Family/Genus), data = datBiome, Hess = TRUE)
+summary(clmm.Biome)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Aquatic_IUCN <- c(-Inf, clmm.Biome$coefficients[1:5], Inf)
+Theta_Aquatic_Regional <- Theta_Aquatic_IUCN - clmm.Biome$coefficients["CriteriaRegional"]
+Theta_SemiAquatic_IUCN <- Theta_Aquatic_IUCN - clmm.Biome$coefficients["BiomeSemiAquatic"]
+Theta_SemiAquatic_Regional <- Theta_Aquatic_IUCN - clmm.Biome$coefficients["CriteriaRegional"] - clmm.Biome$coefficients["BiomeSemiAquatic"]
+Theta_Terrestrial_IUCN <- Theta_Aquatic_IUCN - clmm.Biome$coefficients["BiomeTerrestrial"]
+Theta_Terrestrial_Regional <- Theta_Aquatic_IUCN - clmm.Biome$coefficients["CriteriaRegional"] - clmm.Biome$coefficients["BiomeTerrestrial"]
+
+ResultatenBiome <- data.frame(Aquatic_IUCN = round(diff(plogis(Theta_Aquatic_IUCN)), 4),
+			Aquatic_Regional = round(diff(plogis(Theta_Aquatic_Regional)), 4),
+			SemiAquatic_IUCN = round(diff(plogis(Theta_SemiAquatic_IUCN)), 4),
+			SemiAquatic_Regional = round(diff(plogis(Theta_SemiAquatic_Regional)), 4),
+			Terrestrial_IUCN = round(diff(plogis(Theta_Terrestrial_IUCN)), 4),
+			Terrestrial_Regional = round(diff(plogis(Theta_Terrestrial_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiomeLong <- gather(ResultatenBiome, Group, Probability, -RedList)
+ResultatenBiomeLong <- separate(ResultatenBiomeLong, col = "Group", into = c("Biome", "Criteria"), sep = "_", remove = FALSE)
+```
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiomeLong, aes(x = RedList, y = Probability, group = Group, colour = Biome, linetype = Criteria)) + geom_point(size = 2) + geom_line (size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigBiome.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is not significantly different among aquatic, semi-aquatic and terrestrial species.**
+
+#### Do the analysis for **vertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datBiomeVertebrate <- datBiome %>% 
+	filter(Spine == "Vertebrate")
+
+table(datBiomeVertebrate$Biome, datBiomeVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiomeVertebrate$RLCNum <- factor(datBiomeVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiomeVertebrate <- clmm(RLCNum ~ Biome + (1 | Family), data = datBiomeVertebrate, Hess = TRUE)
+summary(clmm.BiomeVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Aquatic <- c(-Inf, clmm.BiomeVertebrate$coefficients[1:5], Inf)
+Theta_SemiAquatic <- Theta_Aquatic - clmm.BiomeVertebrate$coefficients["BiomeSemiAquatic"]
+Theta_Terrestrial <- Theta_Aquatic - clmm.BiomeVertebrate$coefficients["BiomeTerrestrial"]
+
+ResultatenBiomeVertebrate <- data.frame(Aquatic = round(diff(plogis(Theta_Aquatic)), 4),
+			SemiAquatic = round(diff(plogis(Theta_SemiAquatic)), 4),
+			Terrestrial = round(diff(plogis(Theta_Terrestrial)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiomeVertebrateLong <- gather(ResultatenBiomeVertebrate, Biome, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiomeVertebrateLong, aes(x = RedList, y = Probability, colour = Biome)) + geom_line(aes(group = Biome, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigBiomeVertebrates.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is not significantly different among aquatic, semi-aquatic and terrestrial vertebrates.**
+
+#### Do the analysis for **invertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datBiomeInvertebrate <- datBiome %>% 
+	filter(Spine == "Invertebrate")
+head(datBiomeInvertebrate, 3)
+
+table(datBiomeInvertebrate$Biome, datBiomeInvertebrate$Criteria)
+
+datBiomeInvertebrate <- datBiomeInvertebrate %>% 
+	filter(Biome != "SemiAquatic")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiomeInvertebrate$RLCNum <- factor(datBiomeInvertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiomeInvertebrate <- clmm(RLCNum ~ Biome + Criteria + (1 | Family/Genus), data = datBiomeInvertebrate, Hess = TRUE)
+summary(clmm.BiomeInvertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Aquatic_IUCN <- c(-Inf, clmm.BiomeInvertebrate$coefficients[1:5], Inf)
+Theta_Aquatic_Regional <- Theta_Aquatic_IUCN - clmm.BiomeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Terrestrial_IUCN <- Theta_Aquatic_IUCN - clmm.BiomeInvertebrate$coefficients["BiomeTerrestrial"]
+Theta_Terrestrial_Regional <- Theta_Aquatic_IUCN - clmm.BiomeInvertebrate$coefficients["CriteriaRegional"] - clmm.BiomeInvertebrate$coefficients["BiomeTerrestrial"]
+
+ResultatenBiomeInvertebrate <- data.frame(Aquatic_IUCN = round(diff(plogis(Theta_Aquatic_IUCN)), 4),
+		Aquatic_Regional = round(diff(plogis(Theta_Aquatic_Regional)), 4),
+		Terrestrial_IUCN = round(diff(plogis(Theta_Terrestrial_IUCN)), 4),
+		Terrestrial_Regional = round(diff(plogis(Theta_Terrestrial_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiomeInvertebrateLong <- gather(ResultatenBiomeInvertebrate, Group, Probability, -RedList)
+ResultatenBiomeInvertebrateLong <- separate(ResultatenBiomeInvertebrateLong, col = "Group", into = c("Biome", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiomeInvertebrateLong, aes(x = RedList, y = Probability, group = Group, colour = Biome, linetype = Criteria)) + geom_point(size = 2) +geom_line(size = 1) + theme_bw() + geom_line (size = 1) + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) # + facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigBiomeInvertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is significantly higher for terrestrial invertebrates than for aquatic invertebrates.**
+
+#### Do the analysis for **plants** only
+```{r, echo = TRUE, include = TRUE}
+datBiomePlant <- datBiome %>% 
+	filter(Spine == "Plant")
+
+table(datBiomePlant$Biome, datBiomePlant$Criteria)
+
+#datBiomePlant <- datBiome %>% 
+#	filter(Biome != "SemiAquatic")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiomePlant$RLCNum <- factor(datBiomePlant$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiomePlant <- clmm(RLCNum ~ Biome + Criteria + (1 | Family/Genus), data = datBiomePlant, Hess = TRUE)
+summary(clmm.BiomePlant)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Aquatic_IUCN <- c(-Inf, clmm.BiomePlant$coefficients[1:5], Inf)
+Theta_Aquatic_Regional <- Theta_Aquatic_IUCN - clmm.BiomePlant$coefficients["CriteriaRegional"]
+Theta_SemiAquatic_IUCN <- Theta_Aquatic_IUCN - clmm.BiomePlant$coefficients["BiomeSemiAquatic"]
+Theta_SemiAquatic_Regional <- Theta_Aquatic_IUCN - clmm.BiomePlant$coefficients["CriteriaRegional"]- clmm.BiomePlant$coefficients["BiomeSemiAquatic"]
+Theta_Terrestrial_IUCN <- Theta_Aquatic_IUCN - clmm.BiomePlant$coefficients["BiomeTerrestrial"]
+Theta_Terrestrial_Regional <- Theta_Aquatic_IUCN - clmm.BiomePlant$coefficients["CriteriaRegional"] - clmm.BiomePlant$coefficients["BiomeTerrestrial"]
+
+ResultatenBiomePlant <- data.frame(Aquatic_IUCN = round(diff(plogis(Theta_Aquatic_IUCN)), 4),
+		Aquatic_Regional = round(diff(plogis(Theta_Aquatic_Regional)), 4),
+		SemiAquatic_IUCN = round(diff(plogis(Theta_SemiAquatic_IUCN)), 4),
+		SemiAquatic_Regional = round(diff(plogis(Theta_SemiAquatic_Regional)), 4),
+		Terrestrial_IUCN = round(diff(plogis(Theta_Terrestrial_IUCN)), 4),
+		Terrestrial_Regional = round(diff(plogis(Theta_Terrestrial_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiomePlantLong <- gather(ResultatenBiomePlant, Group, Probability, -RedList)
+ResultatenBiomePlantLong <- separate(ResultatenBiomePlantLong, col = "Group", into = c("Biome", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiomePlantLong, aes(x = RedList, y = Probability, group = Group, colour = Biome, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) # + facet_wrap(~Criteria)
+p
+ggsave(filename = "FigBiomePlant.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is not significantly different among aquatic, semi-aquatic and terrestrial plants.**
+
+## **Biotope**
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datBiotope1 <- sqlQuery(MDB, "select * from [qryBiotope]")
+odbcClose(MDB)
+
+datBiotope1$Biotope <- datBiotope1$Biotope1
+datBiotope2 <- datBiotope1 %>% 
+	filter(Biotope2 == "Agriculture" | Biotope2 == "Anthropogenic" | Biotope2 == "Dunes" | Biotope2 == "Grasslands" | Biotope2 == "Heathlands" | Biotope2 == "Limnophilous" | Biotope2 == "Marshes" | Biotope2 == "SaltMarshes" | Biotope2 == "Shrubs" | Biotope2 == "Woodlands")
+nrow(datBiotope2)
+datBiotope2$Biotope <- datBiotope2$Biotope2
+head(datBiotope2)
+
+datBiotope <- rbind(datBiotope1, datBiotope2)
+nrow(datBiotope)
+
+table(datBiotope$Biotope, datBiotope$Criteria)
+
+datBiotope <- datBiotope %>%
+	filter(Biotope != "Marine")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiotope$RLCNum <- factor(datBiotope$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Biotope <- clmm(RLCNum ~ Biotope + Criteria + (1 | Family/Genus), data = datBiotope, Hess = TRUE, link="logit")
+summary(clmm.Biotope)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Agriculture_IUCN <- c(-Inf, clmm.Biotope$coefficients[1:5], Inf)
+Theta_Agriculture_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Anthropogenic_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeAnthropogenic"]
+Theta_Anthropogenic_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeAnthropogenic"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Dunes_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeDunes"]
+Theta_Dunes_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeDunes"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Eurytopic_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeEurytopic"]
+Theta_Eurytopic_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeEurytopic"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Grasslands_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeGrasslands"]
+Theta_Grasslands_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeGrasslands"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Heathlands_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeHeathlands"]
+Theta_Heathlands_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeHeathlands"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Limnophilous_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeLimnophilous"]
+Theta_Limnophilous_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeLimnophilous"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Marshes_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeMarshes"]
+Theta_Marshes_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeMarshes"] - clmm.Biotope$coefficients["CriteriaRegional"]
+#Theta_Pioneers_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopePioneers"]
+#Theta_Pioneers_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopePioneers"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Rheophilous_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeRheophilous"]
+Theta_Rheophilous_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeRheophilous"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_SaltMarshes_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeSaltMarshes"]
+Theta_SaltMarshes_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeSaltMarshes"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Shrubs_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeShrubs"]
+Theta_Shrubs_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeShrubs"] - clmm.Biotope$coefficients["CriteriaRegional"]
+Theta_Woodlands_IUCN <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeWoodlands"]
+Theta_Woodlands_Regional <- Theta_Agriculture_IUCN - clmm.Biotope$coefficients["BiotopeWoodlands"] - clmm.Biotope$coefficients["CriteriaRegional"]
+
+ResultatenBiotope <- data.frame(Agriculture_IUCN = round(diff(plogis(Theta_Agriculture_IUCN)), 4),
+	Agriculture_Regional = round(diff(plogis(Theta_Agriculture_Regional)), 4),
+	Anthropogenic_IUCN = round(diff(plogis(Theta_Anthropogenic_IUCN)), 4),
+	Anthropogenic_Regional = round(diff(plogis(Theta_Anthropogenic_Regional)), 4),
+	Dunes_IUCN = round(diff(plogis(Theta_Dunes_IUCN)), 4),
+	Dunes_Regional = round(diff(plogis(Theta_Dunes_Regional)), 4),
+	Eurytopic_IUCN = round(diff(plogis(Theta_Eurytopic_IUCN)), 4),
+	Eurytopic_Regional = round(diff(plogis(Theta_Eurytopic_Regional)), 4),
+	Grasslands_IUCN = round(diff(plogis(Theta_Grasslands_IUCN)), 4),
+	Grasslands_Regional = round(diff(plogis(Theta_Grasslands_Regional)), 4),
+	Heathlands_IUCN  = round(diff(plogis(Theta_Heathlands_IUCN)), 4),
+	Heathlands_Regional  = round(diff(plogis(Theta_Heathlands_Regional)), 4),
+	Limnophilous_IUCN = round(diff(plogis(Theta_Limnophilous_IUCN)), 4),
+	Limnophilous_Regional = round(diff(plogis(Theta_Limnophilous_Regional)), 4),
+	Marshes_IUCN = round(diff(plogis(Theta_Marshes_IUCN)), 4),
+	Marshes_Regional = round(diff(plogis(Theta_Marshes_Regional)), 4),
+	#Pioneers_IUCN = round(diff(plogis(Theta_Pioneers_IUCN)), 4),
+	#Pioneers_Regional = round(diff(plogis(Theta_Pioneers_Regional)), 4),
+	Rheophilous_IUCN = round(diff(plogis(Theta_Rheophilous_IUCN)), 4),
+	Rheophilous_Regional = round(diff(plogis(Theta_Rheophilous_Regional)), 4),
+	SaltMarshes_IUCN = round(diff(plogis(Theta_SaltMarshes_IUCN)), 4),
+	SaltMarshes_Regional = round(diff(plogis(Theta_SaltMarshes_Regional)), 4),
+	Shrubs_IUCN = round(diff(plogis(Theta_Shrubs_IUCN)), 4),
+	Shrubs_Regional = round(diff(plogis(Theta_Shrubs_Regional)), 4),
+	Woodlands_IUCN = round(diff(plogis(Theta_Woodlands_IUCN)), 4),
+	Woodlands_Regional = round(diff(plogis(Theta_Woodlands_Regional)), 4),
+	RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+	levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiotopeLong <- gather(ResultatenBiotope, Group, Probability, -RedList)
+ResultatenBiotopeLong <- separate(ResultatenBiotopeLong, col = "Group", into = c("Biotope", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiotopeLong, aes(x = RedList, y = Probability, group = Group, colour = Biotope, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) + facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(filename = "FigBiotope.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is significantly higher for species of heathlands, running waters salt marshes and significantly lower for eurytopic species, species of anthropogenic biotopes, shrubs and woodlands.**
+
+#### Do the analysis for vertebrates only
+```{r, echo = TRUE, include = TRUE}
+datBiotopeVertebrate <- datBiotope %>% 
+	filter(Spine == "Vertebrate")
+head(datBiomeVertebrate, 3)
+
+table(datBiotopeVertebrate$Biotope, datBiotopeVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiotopeVertebrate$RLCNum <- factor(datBiotopeVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiotopeVertebrate <- clmm(RLCNum ~ Biotope + (1 | Family/Genus), data = datBiotopeVertebrate, Hess = TRUE, link="logit")
+summary(clmm.BiotopeVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Agriculture <- c(-Inf, clmm.BiotopeVertebrate$coefficients[1:5], Inf)
+Theta_Anthropogenic <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeAnthropogenic"]
+Theta_Dunes <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeDunes"]
+Theta_Eurytopic <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeEurytopic"]
+Theta_Grasslands <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeGrasslands"]
+Theta_Heathlands <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeHeathlands"]
+Theta_Limnophilous <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeLimnophilous"]
+Theta_Marshes <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeMarshes"]
+Theta_Rheophilous <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeRheophilous"]
+Theta_Shrubs <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeShrubs"]
+Theta_Woodlands <- Theta_Agriculture - clmm.BiotopeVertebrate$coefficients["BiotopeWoodlands"]
+
+ResultatenBiotopeVertebrate <- data.frame(Agriculture = round(diff(plogis(Theta_Agriculture)), 4),
+		Anthropogenic = round(diff(plogis(Theta_Anthropogenic)), 4),
+		Dunes = round(diff(plogis(Theta_Dunes)), 4),
+		Eurytopic = round(diff(plogis(Theta_Eurytopic)), 4),
+		Grasslands = round(diff(plogis(Theta_Grasslands)), 4),
+		Heathlands  = round(diff(plogis(Theta_Heathlands)), 4),
+		Limnophilous = round(diff(plogis(Theta_Limnophilous)), 4),
+		Marshes = round(diff(plogis(Theta_Marshes)), 4),
+		Rheophilous = round(diff(plogis(Theta_Rheophilous)), 4),
+		Shrubs = round(diff(plogis(Theta_Shrubs)), 4),
+		Woodlands = round(diff(plogis(Theta_Woodlands)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiotopeVertebrateLong <- gather(ResultatenBiotopeVertebrate, Biotope, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiotopeVertebrateLong, aes(x = RedList, y = Probability, colour = Biotope)) + geom_line(aes(group = Biotope, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) + facet_wrap(~Biotope)
+p
+ggsave(filename = "FigBiotopeVertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: .**
+
+#### Do the analysis for invertebrates only
+```{r, echo = TRUE, include = TRUE}
+datBiotopeInvertebrate <- datBiotope %>% 
+	filter(Spine == "Invertebrate")
+
+table(datBiotopeInvertebrate$Biotope)
+
+datBiotopeInvertebrate <- datBiotopeInvertebrate %>% 
+	filter(Biotope != "Agriculture" & Biotope != "Anthropogenic")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiotopeInvertebrate$RLCNum <- factor(datBiotopeInvertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiotopeInvertebrate <- clmm(RLCNum ~ Biotope + Criteria + (1 | Family/Genus), data = datBiotopeInvertebrate, Hess = TRUE, link="logit")
+summary(clmm.BiotopeInvertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Dunes_IUCN <- c(-Inf, clmm.BiotopeInvertebrate$coefficients[1:5], Inf)
+Theta_Dunes_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Eurytopic_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeEurytopic"]
+Theta_Eurytopic_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeEurytopic"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Grasslands_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeGrasslands"]
+Theta_Grasslands_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeGrasslands"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Heathlands_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeHeathlands"]
+Theta_Heathlands_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeHeathlands"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Limnophilous_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeLimnophilous"]
+Theta_Limnophilous_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeLimnophilous"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Marshes_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeMarshes"]
+Theta_Marshes_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeMarshes"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Rheophilous_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeRheophilous"]
+Theta_Rheophilous_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeRheophilous"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_SaltMarshes_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeSaltMarshes"]
+Theta_SaltMarshes_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeSaltMarshes"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Shrubs_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeShrubs"]
+Theta_Shrubs_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeShrubs"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+Theta_Woodlands_IUCN <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeWoodlands"]
+Theta_Woodlands_Regional <- Theta_Dunes_IUCN - clmm.BiotopeInvertebrate$coefficients["BiotopeWoodlands"] - clmm.BiotopeInvertebrate$coefficients["CriteriaRegional"]
+
+ResultatenBiotopeInvertebrate <- data.frame(Dunes_IUCN = round(diff(plogis(Theta_Dunes_IUCN)), 4),
+		Dunes_Regional = round(diff(plogis(Theta_Dunes_Regional)), 4),
+		Eurytopic_IUCN = round(diff(plogis(Theta_Eurytopic_IUCN)), 4),
+		Eurytopic_Regional = round(diff(plogis(Theta_Eurytopic_Regional)), 4),
+		Grasslands_IUCN = round(diff(plogis(Theta_Grasslands_IUCN)), 4),
+		Grasslands_Regional = round(diff(plogis(Theta_Grasslands_Regional)), 4),
+		Heathlands_IUCN  = round(diff(plogis(Theta_Heathlands_IUCN)), 4),
+		Heathlands_Regional  = round(diff(plogis(Theta_Heathlands_Regional)), 4),
+		Limnophilous_IUCN = round(diff(plogis(Theta_Limnophilous_IUCN)), 4),
+		Limnophilous_Regional = round(diff(plogis(Theta_Limnophilous_Regional)), 4),
+		Marshes_IUCN = round(diff(plogis(Theta_Marshes_IUCN)), 4),
+		Marshes_Regional = round(diff(plogis(Theta_Marshes_Regional)), 4),
+		Rheophilous_IUCN = round(diff(plogis(Theta_Rheophilous_IUCN)), 4),
+		Rheophilous_Regional = round(diff(plogis(Theta_Rheophilous_Regional)), 4),
+		SaltMarshes_IUCN = round(diff(plogis(Theta_SaltMarshes_IUCN)), 4),
+		SaltMarshes_Regional = round(diff(plogis(Theta_SaltMarshes_Regional)), 4),
+		Shrubs_IUCN = round(diff(plogis(Theta_Shrubs_IUCN)), 4),
+		Shrubs_Regional = round(diff(plogis(Theta_Shrubs_Regional)), 4),
+		Woodlands_IUCN = round(diff(plogis(Theta_Woodlands_IUCN)), 4),
+		Woodlands_Regional = round(diff(plogis(Theta_Woodlands_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiotopeInvertebrateLong <- gather(ResultatenBiotopeInvertebrate, Group, Probability, -RedList)
+ResultatenBiotopeInvertebrateLong <- separate(ResultatenBiotopeInvertebrateLong, col = "Group", into = c("Biotope", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiotopeInvertebrateLong, aes(x = RedList, y = Probability, group = Group, colour = Biotope, linetype = Criteria)) + geom_point(size = 2) + theme_bw() +geom_line(size = 1) + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) + facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(filename = "FigBiotopeInvertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: .**
+
+#### Do the analysis for plants only
+```{r, echo = TRUE, include = TRUE}
+datBiotopePlant <- datBiotope %>% 
+	filter(Spine == "Plant")
+
+table(datBiotopePlant$Biotope)
+
+datBiotopePlant <- datBiotope %>% 
+	filter(Biotope != "Marine" & Biotope != "Rheophilous")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datBiotopePlant$RLCNum <- factor(datBiotopePlant$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.BiotopePlant <- clmm(RLCNum ~ Biotope + Criteria + (1 | Family/Genus), data = datBiotopePlant, Hess = TRUE, link="logit")
+summary(clmm.BiotopePlant)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Agriculture_IUCN <- c(-Inf, clmm.BiotopePlant$coefficients[1:5], Inf)
+Theta_Agriculture_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Anthropogenic_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeAnthropogenic"]
+Theta_Anthropogenic_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Dunes_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeDunes"]
+Theta_Dunes_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Eurytopic_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeEurytopic"]
+Theta_Eurytopic_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeEurytopic"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Grasslands_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeGrasslands"]
+Theta_Grasslands_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeGrasslands"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Heathlands_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeHeathlands"]
+Theta_Heathlands_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeHeathlands"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Limnophilous_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeLimnophilous"]
+Theta_Limnophilous_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeLimnophilous"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Marshes_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeMarshes"]
+Theta_Marshes_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeMarshes"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_SaltMarshes_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeSaltMarshes"]
+Theta_SaltMarshes_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeSaltMarshes"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Shrubs_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeShrubs"]
+Theta_Shrubs_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeShrubs"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+Theta_Woodlands_IUCN <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeWoodlands"]
+Theta_Woodlands_Regional <- Theta_Agriculture_IUCN - clmm.BiotopePlant$coefficients["BiotopeWoodlands"] - clmm.BiotopePlant$coefficients["CriteriaRegional"]
+
+ResultatenBiotopePlant <- data.frame(Agriculture_IUCN = round(diff(plogis(Theta_Agriculture_IUCN)), 4),
+	Agriculture_Regional = round(diff(plogis(Theta_Agriculture_Regional)), 4),
+	Anthropogenic_IUCN = round(diff(plogis(Theta_Anthropogenic_IUCN)), 4),
+	Anthropogenic_Regional = round(diff(plogis(Theta_Anthropogenic_Regional)), 4),
+	Dunes_IUCN = round(diff(plogis(Theta_Dunes_IUCN)), 4),
+	Dunes_Regional = round(diff(plogis(Theta_Dunes_Regional)), 4),
+	Eurytopic_IUCN = round(diff(plogis(Theta_Eurytopic_IUCN)), 4),
+	Eurytopic_Regional = round(diff(plogis(Theta_Eurytopic_Regional)), 4),
+	Grasslands_IUCN = round(diff(plogis(Theta_Grasslands_IUCN)), 4),
+	Grasslands_Regional = round(diff(plogis(Theta_Grasslands_Regional)), 4),
+	Heathlands_IUCN  = round(diff(plogis(Theta_Heathlands_IUCN)), 4),
+	Heathlands_Regional  = round(diff(plogis(Theta_Heathlands_Regional)), 4),
+	Limnophilous_IUCN = round(diff(plogis(Theta_Limnophilous_IUCN)), 4),
+	Limnophilous_Regional = round(diff(plogis(Theta_Limnophilous_Regional)), 4),
+	Marshes_IUCN = round(diff(plogis(Theta_Marshes_IUCN)), 4),
+	Marshes_Regional = round(diff(plogis(Theta_Marshes_Regional)), 4),
+	SaltMarshes_IUCN = round(diff(plogis(Theta_SaltMarshes_IUCN)), 4),
+	SaltMarshes_Regional = round(diff(plogis(Theta_SaltMarshes_Regional)), 4),
+	Shrubs_IUCN = round(diff(plogis(Theta_Shrubs_IUCN)), 4),
+	Shrubs_Regional = round(diff(plogis(Theta_Shrubs_Regional)), 4),
+	Woodlands_IUCN = round(diff(plogis(Theta_Woodlands_IUCN)), 4),
+	Woodlands_Regional = round(diff(plogis(Theta_Woodlands_Regional)), 4),
+	RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+	levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenBiotopePlantLong <- gather(ResultatenBiotopePlant, Group, Probability, -RedList)
+ResultatenBiotopePlantLong <- separate(ResultatenBiotopePlantLong, col = "Group", into = c("Biotope", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenBiotopePlantLong, aes(x = RedList, y = Probability, group = Group, colour = Biotope, linetype = Criteria)) + geom_point(size = 2) +geom_line(size = 1) + theme_bw() + geom_line(size = 1) + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) + facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(filename = "FigBiotopePlant.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: .**
+
+## Nutrient level
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datNutrientLevel <- sqlQuery(MDB, "select * from [qryNutrientLevel]")
+odbcClose(MDB)
+head(datNutrientLevel, 3)
+nrow(datNutrientLevel)
+
+table(datNutrientLevel$NutrientLevel, datNutrientLevel$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevel$RLCNum <- factor(datNutrientLevel$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.NutrientLevel <- clmm(RLCNum ~ NutrientLevel + Criteria + (1 | Family/Genus), data = datNutrientLevel, Hess = TRUE)
+summary(clmm.NutrientLevel)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Eutrophic_IUCN <- c(-Inf, clmm.NutrientLevel$coefficients[1:5], Inf)
+Theta_Eutrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevel$coefficients["CriteriaRegional"]
+Theta_Mesotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevel$coefficients["NutrientLevelMesotrophic"]
+Theta_Mesotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevel$coefficients["NutrientLevelMesotrophic"] - clmm.NutrientLevel$coefficients["CriteriaRegional"]
+Theta_Oligotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevel$coefficients["NutrientLevelOligotrophic"]
+Theta_Oligotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevel$coefficients["NutrientLevelOligotrophic"] - clmm.NutrientLevel$coefficients["CriteriaRegional"]
+
+ResultatenNutrientLevel <- data.frame(Eutrophic_IUCN = round(diff(plogis(Theta_Eutrophic_IUCN)), 4),
+		Eutrophic_Regional = round(diff(plogis(Theta_Eutrophic_Regional)), 4),
+		Mesotrophic_IUCN = round(diff(plogis(Theta_Mesotrophic_IUCN)), 4),
+		Mesotrophic_Regional = round(diff(plogis(Theta_Mesotrophic_Regional)), 4),
+		Oligotrophic_IUCN = round(diff(plogis(Theta_Oligotrophic_IUCN)), 4),
+		Oligotrophic_Regional = round(diff(plogis(Theta_Oligotrophic_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenNutrientLevelLong <- gather(ResultatenNutrientLevel, Group, Probability, -RedList)
+ResultatenNutrientLevelLong <- separate(ResultatenNutrientLevelLong, col = "Group", into = c("NutrientLevel", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenNutrientLevelLong, aes(x = RedList, y = Probability, group = Group, colour = NutrientLevel, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigNutrientLevel.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **vertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelVertebrate <- datNutrientLevel %>% 
+	filter(Spine == "Vertebrate")
+table(datNutrientLevelVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelVertebrate$RLCNum <- factor(datNutrientLevelVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.NutrientLevelVertebrate <- clmm(RLCNum ~ NutrientLevel + (1 | Family/Genus), data = datNutrientLevelVertebrate, Hess = TRUE)
+summary(clmm.NutrientLevelVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Eutrophic_IUCN <- c(-Inf, clmm.NutrientLevelVertebrate$coefficients[1:5], Inf)
+Theta_Mesotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelVertebrate$coefficients["NutrientLevelMesotrophic"]
+Theta_Oligotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelVertebrate$coefficients["NutrientLevelOligotrophic"]
+
+ResultatenNutrientLevelVertebrate <- data.frame(Eutrophic_IUCN = round(diff(plogis(Theta_Eutrophic_IUCN)), 4),
+			Mesotrophic_IUCN = round(diff(plogis(Theta_Mesotrophic_IUCN)), 4),
+			Oligotrophic_IUCN = round(diff(plogis(Theta_Oligotrophic_IUCN)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenNutrientLevelVertebrateLong <- gather(ResultatenNutrientLevelVertebrate, Group, Probability, -RedList)
+ResultatenNutrientLevelVertebrateLong <- separate(ResultatenNutrientLevelVertebrateLong, col = "Group", into = c("NutrientLevel", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenNutrientLevelVertebrateLong, aes(x = RedList, y = Probability, colour = NutrientLevel)) + geom_line(aes(group = NutrientLevel, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigNutrientLevelVertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **invertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelInvertebrate <- datNutrientLevel %>% 
+	filter(Spine == "Invertebrate")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelInvertebrate$RLCNum <- factor(datNutrientLevelInvertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.NutrientLevelInvertebrate <- clmm(RLCNum ~ NutrientLevel + Criteria + (1 | Family/Genus), data = datNutrientLevelInvertebrate, Hess = TRUE)
+summary(clmm.NutrientLevelInvertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Eutrophic_IUCN <- c(-Inf, clmm.NutrientLevelInvertebrate$coefficients[1:5], Inf)
+Theta_Eutrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelInvertebrate$coefficients["CriteriaRegional"]
+Theta_Mesotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelInvertebrate$coefficients["NutrientLevelMesotrophic"]
+Theta_Mesotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelInvertebrate$coefficients["NutrientLevelMesotrophic"] - clmm.NutrientLevelInvertebrate$coefficients["CriteriaRegional"]
+Theta_Oligotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelInvertebrate$coefficients["NutrientLevelOligotrophic"]
+Theta_Oligotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelInvertebrate$coefficients["NutrientLevelOligotrophic"] - clmm.NutrientLevelInvertebrate$coefficients["CriteriaRegional"]
+
+ResultatenNutrientLevelInvertebrate <- data.frame(Eutrophic_IUCN = round(diff(plogis(Theta_Eutrophic_IUCN)), 4),
+				Eutrophic_Regional = round(diff(plogis(Theta_Eutrophic_Regional)), 4),
+				Mesotrophic_IUCN = round(diff(plogis(Theta_Mesotrophic_IUCN)), 4),
+				Mesotrophic_Regional = round(diff(plogis(Theta_Mesotrophic_Regional)), 4),
+				Oligotrophic_IUCN = round(diff(plogis(Theta_Oligotrophic_IUCN)), 4),
+				Oligotrophic_Regional = round(diff(plogis(Theta_Oligotrophic_Regional)), 4),
+				RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+					levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenNutrientLevelInvertebrateLong <- gather(ResultatenNutrientLevelInvertebrate, Group, Probability, -RedList)
+ResultatenNutrientLevelInvertebrateLong <- separate(ResultatenNutrientLevelInvertebrateLong, col = "Group", into = c("NutrientLevel", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenNutrientLevelInvertebrateLong, aes(x = RedList, y = Probability, group = Group, colour = NutrientLevel, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigNutrientLevelInvertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for plants only
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelPlant <- datNutrientLevel %>% 
+	filter(Spine == "Plant")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datNutrientLevelPlant$RLCNum <- factor(datNutrientLevelPlant$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.NutrientLevelPlant <- clmm(RLCNum ~ NutrientLevel + Criteria + (1 | Family/Genus), data = datNutrientLevelPlant, Hess = TRUE)
+summary(clmm.NutrientLevelPlant)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Eutrophic_IUCN <- c(-Inf, clmm.NutrientLevelPlant$coefficients[1:5], Inf)
+Theta_Eutrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelPlant$coefficients["CriteriaRegional"]
+Theta_Mesotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelPlant$coefficients["NutrientLevelMesotrophic"]
+Theta_Mesotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelPlant$coefficients["CriteriaRegional"]- clmm.NutrientLevelPlant$coefficients["NutrientLevelMesotrophic"]
+Theta_Oligotrophic_IUCN <- Theta_Eutrophic_IUCN - clmm.NutrientLevelPlant$coefficients["NurtientLevelOligotrophic"]
+Theta_Oligotrophic_Regional <- Theta_Eutrophic_IUCN - clmm.NutrientLevelPlant$coefficients["CriteriaRegional"] - clmm.NutrientLevelPlant$coefficients["NurtientLevelOligotrophic"]
+
+ResultatenNutrientLevelPlant <- data.frame(Eutrophic_IUCN = round(diff(plogis(Theta_Eutrophic_IUCN)), 4),
+										Eutrophic_Regional = round(diff(plogis(Theta_Eutrophic_Regional)), 4),
+		Mesotrophic_IUCN = round(diff(plogis(Theta_Mesotrophic_IUCN)), 4),
+		Mesotrophic_Regional = round(diff(plogis(Theta_Mesotrophic_Regional)), 4),
+		Oligotrophic_IUCN = round(diff(plogis(Theta_Oligotrophic_IUCN)), 4),
+		Oligotrophic_Regional = round(diff(plogis(Theta_Oligotrophic_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenNutrientLevelPlantLong <- gather(ResultatenNutrientLevelPlant, Group, Probability, -RedList)
+ResultatenNutrientLevelPlantLong <- separate(ResultatenNutrientLevelPlantLong, col = "Group", into = c("NutrientLevel", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenNutrientLevelLong, aes(x = RedList, y = Probability, group = Group, colour = NutrientLevel, linetype = Criteria)) + geom_point(size = 2) + theme_bw() + geom_line(size = 1) + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(p, filename = "FigNutrientLevelPlant.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+## Lifespan
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datLifespan <- sqlQuery(MDB, "select * from [qryLifespan]")
+odbcClose(MDB)
+head(datLifespan, 3)
+nrow(datLifespan)
+
+table(datLifespan$Lifespan, datLifespan$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datLifespan$RLCNum <- factor(datLifespan$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Lifespan <- clmm(RLCNum ~ Lifespan + Criteria + (1 | Family/Genus), data = datLifespan, Hess = TRUE)
+summary(clmm.Lifespan)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Longlived_IUCN <- c(-Inf, clmm.Lifespan$coefficients[1:5], Inf)
+Theta_Longlived_Regional <- Theta_Longlived_IUCN - clmm.Lifespan$coefficients["CriteriaRegional"]
+Theta_Shortlived_IUCN <- Theta_Longlived_IUCN - clmm.Lifespan$coefficients["LifespanShortlived"]
+Theta_Shortlived_Regional <- Theta_Longlived_IUCN - clmm.Lifespan$coefficients["LifespanShortlived"] - clmm.Lifespan$coefficients["CriteriaRegional"]
+
+ResultatenLifespan <- data.frame(Longlived_IUCN = round(diff(plogis(Theta_Longlived_IUCN)), 4),
+			Longlived_Regional = round(diff(plogis(Theta_Longlived_Regional)), 4),
+			Shortlived_IUCN = round(diff(plogis(Theta_Shortlived_IUCN)), 4),
+			Shortlived_Regional = round(diff(plogis(Theta_Shortlived_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenLifespanLong <- gather(ResultatenLifespan, Group, Probability, -RedList)
+ResultatenLifespanLong <- separate(ResultatenLifespanLong, col = "Group", into = c("Lifespan", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenLifespanLong, aes(x = RedList, y = Probability, group = Group, colour = Lifespan, linetype = Criteria)) + geom_point(size = 2) +geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(p, filename = "FigLifespan.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **vertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datLifespanVertebrate <- datLifespan %>% 
+	filter(Spine == "Vertebrate")
+
+table(datLifespanVertebrate$Lifespan, datLifespanVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datLifespanVertebrate$RLCNum <- factor(datLifespanVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.LifespanVertebrate <- clmm(RLCNum ~ Lifespan + (1 | Family/Genus), data = datLifespanVertebrate, Hess = TRUE)
+summary(clmm.LifespanVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Longlived <- c(-Inf, clmm.LifespanVertebrate$coefficients[1:5], Inf)
+Theta_Shortlived <- Theta_Longlived - clmm.LifespanVertebrate$coefficients["LifespanShortlived"]
+
+ResultatenLifespanVertebrate <- data.frame(Longlived = round(diff(plogis(Theta_Longlived)), 4),
+			Shortlived = round(diff(plogis(Theta_Shortlived)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenLifespanVertebrateLong <- gather(ResultatenLifespanVertebrate, Lifespan, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenLifespanVertebrateLong, aes(x = RedList, y = Probability, colour = Lifespan)) + geom_line(aes(group = Lifespan, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigLifespanVertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Doing this analysis for **invertebrates** only is not useful since all of them are shortlived
+
+#### Do the analysis for plants only
+```{r, echo = TRUE, include = TRUE}
+datLifespanPlant <- datLifespan %>% 
+	filter(Spine == "Plant")
+
+table(datLifespanPlant$Lifespan, datLifespanPlant$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datLifespanPlant$RLCNum <- factor(datLifespanPlant$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.LifespanPlant <- clmm(RLCNum ~ Lifespan + Criteria + (1 | Family/Genus), data = datLifespanPlant, Hess = TRUE)
+summary(clmm.LifespanPlant)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Longlived_IUCN <- c(-Inf, clmm.LifespanPlant$coefficients[1:5], Inf)
+Theta_Longlived_Regional <- Theta_Longlived_IUCN - clmm.LifespanPlant$coefficients["CriteriaRegional"]
+Theta_Shortlived_IUCN <- Theta_Longlived_IUCN - clmm.LifespanPlant$coefficients["LifespanShortlived"]
+Theta_Shortlived_Regional <- Theta_Longlived_IUCN - clmm.LifespanPlant$coefficients["LifespanShortlived"] - clmm.LifespanPlant$coefficients["CriteriaRegional"]
+
+ResultatenLifespanPlant <- data.frame(Longlived_IUCN = round(diff(plogis(Theta_Longlived_IUCN)), 4),
+			Longlived_Regional = round(diff(plogis(Theta_Longlived_Regional)), 4),
+			Shortlived_IUCN = round(diff(plogis(Theta_Shortlived_IUCN)), 4),
+			Shortlived_Regional = round(diff(plogis(Theta_Shortlived_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenLifespanPlantLong <- gather(ResultatenLifespanPlant, Group, Probability, -RedList)
+ResultatenLifespanPlantLong <- separate(ResultatenLifespanPlantLong, col = "Group", into = c("Lifespan", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenLifespanPlantLong, aes(x = RedList, y = Probability, group = Group, colour = Lifespan, linetype = Criteria)) + geom_point(size = 2) + geom_line(size= 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigLifespanPlant.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+## Mobility
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datMobility <- sqlQuery(MDB, "select * from [qryMobility]")
+odbcClose(MDB)
+head(datMobility, 3)
+nrow(datMobility)
+
+table(datMobility$Mobility, datMobility$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datMobility$RLCNum <- factor(datMobility$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Mobility <- clmm(RLCNum ~ Mobility + Criteria +(1 | Family/Genus), data = datMobility, Hess = TRUE)
+summary(clmm.Mobility)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Mobile_IUCN <- c(-Inf, clmm.Mobility$coefficients[1:5], Inf)
+Theta_Mobile_Regional <- Theta_Mobile_IUCN - clmm.Mobility$coefficients["CriteriaRegional"]
+Theta_Sedentary_IUCN <- Theta_Mobile_IUCN - clmm.Mobility$coefficients["MobilitySedentary"]
+Theta_Sedentary_Regional <- Theta_Mobile_IUCN - clmm.Mobility$coefficients["MobilitySedentary"] - clmm.Mobility$coefficients["CriteriaRegional"]
+
+ResultatenMobility <- data.frame(Mobile_IUCN = round(diff(plogis(Theta_Mobile_IUCN)), 4),
+		Mobile_Regional = round(diff(plogis(Theta_Mobile_Regional)), 4),
+		Sedentary_IUCN = round(diff(plogis(Theta_Sedentary_IUCN)), 4),
+		Sedentary_Regional = round(diff(plogis(Theta_Sedentary_Regional)), 4),
+		RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenMobilityLong <- gather(ResultatenMobility, Group, Probability, -RedList)
+ResultatenMobilityLong <- separate(ResultatenMobilityLong, col = "Group", into = c("Mobility", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenMobilityLong, aes(x = RedList, y = Probability, group = Group, colour = Mobility, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(p, filename = "FigMobility.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **vertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datMobilityVertebrate <- datMobility %>% 
+	filter(Spine == "Vertebrate")
+
+table(datMobilityVertebrate$Mobility, datMobilityVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datMobilityVertebrate$RLCNum <- factor(datMobilityVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.MobilityVertebrate <- clmm(RLCNum ~ Mobility + (1 | Family), data = datMobilityVertebrate, Hess = TRUE)
+summary(clmm.MobilityVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Mobile <- c(-Inf, clmm.MobilityVertebrate$coefficients[1:5], Inf)
+Theta_Sedentary <- Theta_Mobile - clmm.MobilityVertebrate$coefficients["MobilitySedentary"]
+
+ResultatenMobilityVertebrate <- data.frame(Mobile = round(diff(plogis(Theta_Mobile)), 4),
+	 Sedentary = round(diff(plogis(Theta_Sedentary)), 4),
+	 RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"),
+ 		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+ResultatenMobilityVertebrateLong <- gather(ResultatenMobilityVertebrate, Mobility, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenMobilityVertebrateLong, aes(x = RedList, y = Probability, colour = Mobility)) + geom_line(aes(group = Mobility, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigMobilityVertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **invertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datMobilityInvertebrate <- datMobility %>% 
+	filter(Spine == "Invertebrate")
+
+table(datMobilityInvertebrate$Mobility, datMobilityInvertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datMobilityInvertebrate$RLCNum <- factor(datMobilityInvertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.MobilityInvertebrate <- clmm(RLCNum ~ Mobility + Criteria + (1 | Family/Genus), data = datMobilityInvertebrate, Hess = TRUE)
+summary(clmm.MobilityInvertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Mobile_IUCN <- c(-Inf, clmm.MobilityInvertebrate$coefficients[1:5], Inf)
+Theta_Mobile_Regional <- Theta_Mobile_IUCN - clmm.MobilityInvertebrate$coefficients["CriteriaRegional"]
+Theta_Sedentary_IUCN <- Theta_Mobile_IUCN - clmm.MobilityInvertebrate$coefficients["MobilitySedentary"]
+Theta_Sedentary_Regional <- Theta_Mobile_IUCN - clmm.MobilityInvertebrate$coefficients["MobilitySedentary"] - clmm.MobilityInvertebrate$coefficients["CriteriaRegional"]
+
+ResultatenMobilityInvertebrate <- data.frame(Mobile_IUCN = round(diff(plogis(Theta_Mobile_IUCN)), 4),
+			Mobile_Regional = round(diff(plogis(Theta_Mobile_Regional)), 4),
+			Sedentary_IUCN = round(diff(plogis(Theta_Sedentary_IUCN)), 4),
+			Sedentary_Regional = round(diff(plogis(Theta_Sedentary_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenMobilityInvertebrateLong <- gather(ResultatenMobilityInvertebrate, Group, Probability, -RedList)
+ResultatenMobilityInvertebrateLong <- separate(ResultatenMobilityInvertebrateLong, col = "Group", into = c("Mobility", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenMobilityInvertebrateLong, aes(x = RedList, y = Probability, group = Group, colour = Mobility, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(p, filename = "FigMobilityInvertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **plants** only
+```{r, echo = TRUE, include = TRUE}
+datMobilityPlant <- datMobility %>% 
+	filter(Spine == "Plant")
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datMobilityPlant$RLCNum <- factor(datMobilityPlant$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.MobilityPlant <- clmm(RLCNum ~ Mobility + Criteria + (1 | Family/Genus), data = datMobilityPlant, Hess = TRUE)
+summary(clmm.MobilityPlant)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Mobile_IUCN <- c(-Inf, clmm.MobilityPlant$coefficients[1:5], Inf)
+Theta_Mobile_Regional <- Theta_Mobile_IUCN - clmm.MobilityPlant$coefficients["CriteriaRegional"]
+Theta_Sedentary_IUCN <- Theta_Mobile_IUCN - clmm.MobilityPlant$coefficients["MobilitySedentary"]
+Theta_Sedentary_Regional <- Theta_Mobile_IUCN - clmm.MobilityPlant$coefficients["MobilitySedentary"] - clmm.MobilityPlant$coefficients["CriteriaRegional"]
+
+ResultatenMobilityPlant <- data.frame(Mobile_IUCN = round(diff(plogis(Theta_Mobile_IUCN)), 4),
+	Mobile_Regional = round(diff(plogis(Theta_Mobile_Regional)), 4),
+	Sedentary_IUCN = round(diff(plogis(Theta_Sedentary_IUCN)), 4),
+	Sedentary_Regional = round(diff(plogis(Theta_Sedentary_Regional)), 4),
+	RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenMobilityPlantLong <- gather(ResultatenMobilityPlant, Group, Probability, -RedList)
+ResultatenMobilityPlantLong <- separate(ResultatenMobilityPlantLong, col = "Group", into = c("Mobility", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenMobilityPlantLong, aes(x = RedList, y = Probability, group = Group, colour = Mobility, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria) #+ geom_hline(yintercept = 0.1)
+p
+ggsave(p, filename = "FigMobilityPlant.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+## Cuddliness, only for animals
+#### Get the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+datCuddliness <- sqlQuery(MDB, "select * from [qryCuddliness]")
+odbcClose(MDB)
+
+datCuddliness <- datCuddliness %>% 
+	filter(Spine != "Plant")
+nrow(datCuddliness)
+
+head(datCuddliness, 3)
+nrow(datCuddliness)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datCuddliness$RLCNum <- factor(datCuddliness$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.Cuddliness <- clmm(RLCNum ~ Cuddliness + Criteria + (1 | Family/Genus), data = datCuddliness, Hess = TRUE)
+summary(clmm.Cuddliness)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Cuddly_IUCN <- c(-Inf, clmm.Cuddliness$coefficients[1:5], Inf)
+Theta_Cuddly_Regional <- Theta_Cuddly_IUCN - clmm.Cuddliness$coefficients["CriteriaRegional"]
+Theta_NonCuddly_IUCN <- Theta_Cuddly_IUCN - clmm.Cuddliness$coefficients["CuddlinessNonCuddly"]
+Theta_NonCuddly_Regional <- Theta_Cuddly_IUCN - clmm.Cuddliness$coefficients["CriteriaRegional"] - clmm.Cuddliness$coefficients["CuddlinessNonCuddly"]
+
+ResultatenCuddliness <- data.frame(Cuddly_IUCN = round(diff(plogis(Theta_Cuddly_IUCN)), 4),
+		 Cuddly_Regional = round(diff(plogis(Theta_Cuddly_Regional)), 4),
+		 NonCuddly_IUCN = round(diff(plogis(Theta_NonCuddly_IUCN)), 4),
+		 NonCuddly_Regional = round(diff(plogis(Theta_NonCuddly_Regional)), 4),
+		 RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+			levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenCuddlinessLong <- gather(ResultatenCuddliness, Group, Probability, -RedList)
+ResultatenCuddlinessLong <- separate(ResultatenCuddlinessLong, col = "Group", into = c("Cuddliness", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenCuddlinessLong, aes(x = RedList, y = Probability, group = Group, colour = Cuddliness, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigCuddliness.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for **vertebrates** only
+```{r, echo = TRUE, include = TRUE}
+datCuddlinessVertebrate <- datCuddliness %>% 
+	filter(Spine == "Vertebrate")
+
+table(datCuddlinessVertebrate$Cuddliness, datCuddlinessVertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datCuddlinessVertebrate$RLCNum <- factor(datCuddlinessVertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model. Since all vertebrate Red Lists are done with IUCN criteria, we do not include Criteria in the model
+
+```{r, echo = TRUE, include = TRUE}
+clmm.CuddlinessVertebrate <- clmm(RLCNum ~ Cuddliness + (1 | Family/Genus), data = datCuddlinessVertebrate, Hess = TRUE)
+summary(clmm.CuddlinessVertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Cuddly <- c(-Inf, clmm.CuddlinessVertebrate$coefficients[1:5], Inf)
+Theta_NonCuddly <- Theta_Cuddly - clmm.CuddlinessVertebrate$coefficients["CuddlinessNonCuddly"]
+
+ResultatenCuddlinessVertebrate <- data.frame(Cuddly = round(diff(plogis(Theta_Cuddly)), 4),
+  NonCuddly = round(diff(plogis(Theta_NonCuddly)), 4),
+  RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+		levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenCuddlinessVertebrateLong <- gather(ResultatenCuddlinessVertebrate, Cuddliness, Probability, -RedList)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenCuddlinessVertebrateLong, aes(x = RedList, y = Probability, colour = Cuddliness)) + geom_line(aes(group = Cuddliness, stat = "identity"), size = 1) + geom_point(size = 2) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1)
+p
+ggsave(p, filename = "FigCuddlinessVertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**
+
+#### Do the analysis for invertebrates only
+```{r, echo = TRUE, include = TRUE}
+datCuddlinessInvertebrate <- datCuddliness %>% 
+	filter(Spine == "Invertebrate")
+
+table(datCuddlinessInvertebrate$Cuddliness, datCuddlinessInvertebrate$Criteria)
+```
+
+Rank the Red List categories from low to high
+
+```{r, echo = TRUE, include = TRUE}
+datCuddlinessInvertebrate$RLCNum <- factor(datCuddlinessInvertebrate$RLC, levels = c("LC", "NT", "VU", "EN", "CR", "RE"), ordered = TRUE)
+```
+
+Do a Cumulative Link Mixed Model
+```{r, echo = TRUE, include = TRUE}
+clmm.CuddlinessInvertebrate <- clmm(RLCNum ~ Cuddliness + Criteria + (1 | Family/Genus), data = datCuddlinessInvertebrate, Hess = TRUE)
+summary(clmm.CuddlinessInvertebrate)
+```
+
+Calculate the estimates (betas) and put them in a long format
+
+```{r, echo = TRUE, include = TRUE}
+Theta_Cuddly_IUCN <- c(-Inf, clmm.CuddlinessInvertebrate$coefficients[1:5], Inf)
+Theta_Cuddly_Regional <- Theta_Cuddly_IUCN - clmm.CuddlinessInvertebrate$coefficients["CriteriaRegional"]
+Theta_NonCuddly_IUCN <- Theta_Cuddly_IUCN - clmm.CuddlinessInvertebrate$coefficients["CuddlinessNonCuddly"]
+Theta_NonCuddly_Regional <- Theta_Cuddly_IUCN - clmm.CuddlinessInvertebrate$coefficients["CriteriaRegional"] - clmm.CuddlinessInvertebrate$coefficients["CuddlinessNonCuddly"]
+
+ResultatenCuddlinessInvertebrate <- data.frame(Cuddly_IUCN = round(diff(plogis(Theta_Cuddly_IUCN)), 4),
+			Cuddly_Regional = round(diff(plogis(Theta_Cuddly_Regional)), 4),
+			NonCuddly_IUCN = round(diff(plogis(Theta_NonCuddly_IUCN)), 4),
+			NonCuddly_Regional = round(diff(plogis(Theta_NonCuddly_Regional)), 4),
+			RedList = ordered(c("LC", "NT", "VU", "EN", "CR", "RE"), 
+				levels = c("LC", "NT", "VU", "EN", "CR", "RE")))
+
+ResultatenCuddlinessInvertebrateLong <- gather(ResultatenCuddlinessInvertebrate, Group, Probability, -RedList)
+ResultatenCuddlinessInvertebrateLong <- separate(ResultatenCuddlinessInvertebrateLong, col = "Group", into = c("Cuddliness", "Criteria"), sep = "_", remove = FALSE)
+```
+
+Plot the outcome
+
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(ResultatenCuddlinessInvertebrateLong, aes(x = RedList, y = Probability, group = Group, colour = Cuddliness, linetype = Criteria)) + geom_point(size = 2) + geom_line(size = 1) + theme_bw() + xlab(label = "Red List category") + ylab(label = "Probability") + theme(axis.title.x = element_text(size = 20, face = "bold"), axis.text.x = element_text(size = 15, angle = 0)) + theme(axis.title.y = element_text(size = 20, face = "bold"), axis.text.y = element_text(size = 15)) + ylim(0,1) #+ facet_wrap(~Criteria)
+p
+ggsave(p, filename = "FigCuddlinessInvertebrate.jpg", dpi = 600, width = 10, height = 5, path = pathFig)
+```
+
+**Conclusion: the probability of being classified as Regionally Extinct (RE) or threatened, i.e. belonging to the Red List categories Critically Endangered (CR), Endangered (EN) or Vulnerable (VU), is ??.**

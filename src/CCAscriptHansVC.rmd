@@ -1,0 +1,202 @@
+---
+title: 'IUCN red lists'
+author: "Hans Van Calster"
+date: "1 september 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+```{r setup, include = FALSE}
+library(knitr)
+opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(readxl)
+library(vegan)
+library(INBOmisc)
+library(RODBC)
+```
+
+## Set working directory and get the data
+```{r, echo = TRUE, include = TRUE}
+setwd("C:/Users/dirk_maes/Google Drive/Publicaties/inprep2017_TraitRedListingFlandersAnalyses/")
+pathFig <- "Figuren/"
+```
+
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+rl_all1 <- sqlQuery(MDB, "select * from [qryCCA]")
+rl_all2 <- sqlQuery(MDB, "select * from [qryCCA2]")
+odbcClose(MDB)
+```
+
+If species have 2 biotopes, copy the second biotope into the Biotope column
+```{r, echo = TRUE}
+rl_all <- rbind(rl_all1, rl_all2)
+nrow(rl_all)
+```
+
+## Count the number of species per biotope and eliminate biotopes with less than 5 species
+```{r, echo = TRUE}
+table(rl_all$Biotope)
+rl_all <- rl_all %>%
+	filter(Biotope != "Marine")
+```
+
+## Prepare a table for the cca analysis
+```{r, echo = TRUE}
+rl_all_wide <- rl_all %>%
+	select(TaxonomicGroup, SpeciesnameAsPublished, RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%
+	filter(RLC != "DD", RLC != "DD(PT)") %>%
+	group_by(RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%
+	summarise(nspec = n()) %>%
+	spread(key = RLC, value = nspec, fill = 0) %>%
+	ungroup() %>%
+	filter(complete.cases(.))
+#write.table(rl_all_wide, file = "rl_all_wide.csv", sep = ";", row.names = FALSE)
+```
+
+## Do CCA and optimise the model using anova
+```{r, include  = TRUE}
+cca1_all <- cca(rl_all_wide %>% select(CR:VU) ~ Biome
+								+ Biotope
+								+ Cuddliness
+								+ Lifespan
+								+ Mobility
+								+ NutrientLevel
+								, data = rl_all_wide)
+summary(cca1_all)
+anova(cca1_all, by = "terms")
+```
+
+## Make biplot and save as jpg
+```{r, echo = TRUE, include = TRUE}
+pbiplot_all <- ggbiplot_vegan(cca1_all, site_geom = "blank", cn_geom = "text", base_sizes = c(5,8,5))
+pbiplot_all
+ggsave(pbiplot_all, filename = "CCA_biplot_All.jpg", dpi = 600, width = 12, height = 12)
+```
+
+# Do analysis for **invertebrates** only
+```{r, echo = TRUE}
+rl_invertebrates <- rl_all %>% 
+	filter(Spine == "Invertebrate")
+nrow(rl_invertebrates)
+
+table(rl_invertebrates$Biotope)
+
+rl_invertebrates <- rl_invertebrates %>% 
+	filter(Biotope != "Agriculture" & Biotope != "Anthropogenic" & Biotope != "Marine")
+nrow(rl_invertebrates)
+
+table(rl_invertebrates$Biotope)
+```
+
+```{r, echo = TRUE}
+rl_invertebrates_wide <- rl_invertebrates %>%
+	select(TaxonomicGroup, SpeciesnameAsPublished, RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%  
+	filter(RLC != "DD", RLC != "DD(PT)") %>%
+	group_by(RLC, Biome, Biotope, Cuddliness, Mobility, NutrientLevel, Lifespan) %>%
+	summarise(nspec = n()) %>%
+	spread(key = RLC, value = nspec, fill = 0) %>%
+	ungroup() %>%
+	filter(complete.cases(.))
+```
+
+Do not include Lifespan in the analysis, since all invertebrates are shortlived
+
+```{r, include = TRUE}
+cca1_invertebrates <- cca(rl_invertebrates_wide %>% select(CR:VU) ~ Biome
+													+ Biotope
+													+ Cuddliness
+													#+ Lifespan
+													+ Mobility
+													+ NutrientLevel
+													, data = rl_invertebrates_wide)
+summary(cca1_invertebrates)
+anova(cca1_invertebrates, by = "terms")
+```
+
+```{r, echo = TRUE}
+pbiplot_invertebrates <- ggbiplot_vegan(cca1_invertebrates, site_geom = "blank", cn_geom = "text", base_sizes = c(5, 8, 5))
+pbiplot_invertebrates
+ggsave(pbiplot_invertebrates, filename = "CCA_biplot_Invertebrates.jpg", dpi = 600, width = 10, height = 10)
+```
+
+# Do analysis for **vertebrates** only
+```{r, echo = TRUE}
+rl_vertebrates <- rl_all %>% 
+	filter(Spine == "Vertebrate")
+table(rl_vertebrates$Biotope)
+nrow(rl_vertebrates)
+```
+
+```{r, echo = TRUE}
+rl_vertebrates_wide <- rl_vertebrates %>%
+select(TaxonomicGroup, SpeciesnameAsPublished, RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%
+	filter(RLC != "DD", RLC != "DD(PT)") %>%
+	group_by(RLC, Biome, Biotope, Lifespan, Cuddliness, Mobility, NutrientLevel) %>%
+	summarise(nspec = n()) %>%
+	spread(key = RLC, value = nspec, fill = 0) %>%
+	ungroup() %>%
+	filter(complete.cases(.))
+```
+
+```{r, include = TRUE}
+cca1_vertebrates <- cca(rl_vertebrates_wide %>% select(CR:VU) ~ #Biome
+												+ Biotope
+												+ Cuddliness
+												+ Lifespan
+												+ Mobility
+												+ NutrientLevel
+												, data = rl_vertebrates_wide) 
+summary(cca1_vertebrates)
+anova(cca1_vertebrates, by = "terms")
+```
+
+```{r, echo = TRUE}
+pbiplot_vertebrates <- ggbiplot_vegan(cca1_vertebrates, site_geom = "blank", cn_geom = "text", base_sizes = c(5,8,5))
+pbiplot_vertebrates
+ggsave(pbiplot_vertebrates, filename = "CCA_biplot_Vertebrates.jpg", dpi = 600, width = 10, height = 10)
+```
+
+# Do analysis for **plants** only
+```{r, echo = TRUE}
+rl_plants <- rl_all %>% 
+	filter(Spine == "Plant")
+nrow(rl_plants)
+
+table(rl_plants$Biotope)
+table(rl_plants$Biome)
+
+rl_plants <- rl_plants %>% 
+	filter(Biotope != "Rheophilous" & Biome != "SemiAquatic")
+```
+
+```{r, echo = TRUE}
+rl_plants_wide <- rl_plants %>%
+	select(TaxonomicGroup, SpeciesnameAsPublished, RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%
+	filter(RLC != "DD", RLC != "DD(PT)") %>%
+	group_by(RLC, Biome, Biotope, Cuddliness, Lifespan, Mobility, NutrientLevel) %>%
+	summarise(nspec = n()) %>%
+	spread(key = RLC, value = nspec, fill = 0) %>%
+	ungroup() %>%
+	filter(complete.cases(.))
+```
+
+```{r, include = TRUE}
+cca1_plants <- cca(rl_plants_wide %>% select(CR:VU) ~ Biome
+									 + Biotope
+									 #+ Cuddliness
+									 + Lifespan
+									 + Mobility
+									 + NutrientLevel
+									 , data = rl_plants_wide)
+summary(cca1_plants)
+anova(cca1_plants, by = "terms")
+```
+
+```{r, echo = TRUE}
+pbiplot_plants <- ggbiplot_vegan(cca1_plants, site_geom = "blank", cn_geom = "text", base_sizes = c(5,8,5))
+pbiplot_plants
+ggsave(pbiplot_plants, filename = "CCA_biplot_Plants.jpg", dpi = 600, width = 10, height = 10)
+```
