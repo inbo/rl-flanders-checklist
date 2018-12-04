@@ -5,5 +5,5 @@ The Red List Flanders Unvalidated and the Red List Flanders validated scripts ar
 
 In darwin core the data for both datasets is organized in a taxon + distribution scheme
 
-The processed data data is available on (ipt.XXXXXXX)[ljhshlnhshl]
+The processed data is available on (ipt.XXXXXXX)[ljhshlnhshl]
 
