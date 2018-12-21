@@ -1,0 +1,148 @@
+---
+title: "RedListFlandersOverviewFigures"
+author: "Dirk Maes"
+date: "21 december 2018"
+output:
+  word_document: default
+  html_document: default
+---
+```{r setup, include = FALSE}
+library(scales)
+library(tidyverse)
+#library(plyr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(RODBC)
+library(tidyr)
+#library(treemapify)
+opts_chunk$set(echo = TRUE, include = TRUE)
+```
+
+Time of the analysis
+```{r, echo = FALSE}
+format(Sys.time(), "%d %B %Y %X")
+```
+Prepare the codes and the colours for the different Red List categories
+```{r}
+threats_full <- rev(c("Regionally Extinct (RE)", 
+                  "Critically Endangered (CR)", 
+                  "Endangered (EN)",
+                  "Vulnerable (VU)",
+                  "Near Threatened (NT)",
+                  "Least Concern (LC)",
+                  "Data Deficient (DD)"))
+
+threats_code <- rev(c("RE", "CR", "EN", "VU", "NT", "LC", "DD"))
+
+threats_colors <- rev(c("#000200ff", "#da1b03ff", "#fb7e3cff",
+                    "#f7e715ff", "#c9e224ff", "#5ec657ff", 
+                    "#cfd1c4ff"))
+```
+
+Set working directory and the path for the figures
+```{r, echo = TRUE, include = TRUE}
+setwd("C:/Users/dirk_maes/Google Drive/Publicaties/inprep2017_TraitRedListingFlandersAnalyses/")
+pathFig <- "Figuren/"
+```
+
+Load the data
+```{r, echo = TRUE, include = TRUE}
+MDB <- odbcConnectAccess2007("RedListFlandersAnalyses_Work.accdb")
+redlists <- sqlQuery(MDB, "select * from [tblFlandersRedListsAll]")
+odbcClose(MDB)
+head(redlists, 3)
+nrow(redlists)
+```
+
+Or read the data from a csv file
+```{r, echo = TRUE, include = TRUE}
+#redlists <- read_csv("redlists_assessment.csv")
+```
+
+Filter the validated Red Lists
+```{r, echo = TRUE, include = TRUE}
+redlists <- redlists %>%
+  filter(Validated == "Validated") %>%  # only validated records
+  filter(!is.na(RLC)) %>%   # excluding NA values
+  filter(RLC %in% threats_code) %>% # ONLY codes, no 'NE' values
+  mutate(RLC = factor(RLC, levels = threats_code))
+head(redlists)
+```
+
+Make a bar chart per taxonomic group
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(redlists, aes(x = TaxonomicGroup, fill = RLC)) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  theme_minimal(base_size = 16) +
+  scale_fill_manual("IUCN Red List \ncategory", values = threats_colors) +
+  scale_y_continuous(labels = scales::percent) +
+	theme(axis.line = element_blank(),
+				axis.title = element_blank(),
+				legend.title=element_text(size= 16),
+				legend.text=element_text(size = 15))
+p
+ggsave(p, filename = "FigOverview.jpg", dpi = 600, width = 10, height = 7, path = pathFig)
+```
+
+Do the same for separate groups, if needed
+```{r, echo = TRUE, include = TRUE}
+# For animalia plantae
+ggplot(redlists, aes(x = Kingdom, fill = RLC)) +
+  geom_bar(position = "fill") +
+  theme_minimal(base_size = 16) +
+  scale_fill_manual("IUCN Red List \ncategory", values = threats_colors) +
+  xlab("") + ylab("") + 
+  scale_y_continuous(labels = scales::percent)
+
+# For (in)vertebrates
+redlists_nonplant <- redlists %>% 
+  filter(Spine != "Plant")
+
+ggplot(redlists_nonplant, aes(x = Spine, fill = RLC)) + geom_bar(position = "fill") + theme_minimal(base_size = 16) + scale_fill_manual("IUCN Red List \ncategory", values = threats_colors) + xlab("") + ylab("") + scale_y_continuous(labels = scales::percent)
+```
+
+Prepare data for a pie chart
+```{r, echo = TRUE, include = TRUE}
+frequence_all <- redlists %>%
+  group_by(RLC) %>%
+  summarise (n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  ungroup()
+```
+
+Create a blank theme
+```{r, echo = TRUE, include = TRUE}
+blank_theme <- theme_minimal() +
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+```
+
+Make a piechart
+```{r, echo = TRUE, include = TRUE}
+p <- ggplot(frequence_all, aes(x=factor(1), y = freq, fill=RLC)) +
+	geom_bar(stat="identity", width = 1) +
+	coord_polar("y", start = 0) +
+	geom_text(aes(label = paste0(round(freq*100), "%")),
+						position = position_stack(vjust = 0.5),
+						size = 8,
+						colour = "white") +
+  scale_fill_manual("IUCN Red List \ncategory", values = threats_colors) +
+  scale_y_continuous(labels = scales::percent) +
+  blank_theme +
+	theme(axis.line = element_blank(),
+				axis.text = element_blank(),
+				axis.ticks = element_blank(),
+				legend.title=element_text(size = 16),
+				legend.text=element_text(size = 15))
+p
+
+ggsave(p, filename = "PiechartRLC.jpg", dpi = 600, width = 10, height = 7, path = pathFig)
+```
