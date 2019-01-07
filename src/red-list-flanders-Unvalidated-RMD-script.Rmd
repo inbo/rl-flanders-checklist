@@ -343,7 +343,7 @@ head(distribution)
 
 ```{r}
 distribution %<>% 
-                  rename(redListCriteria = raw_rlc) %>%
+                  rename(redListCriteria = raw_rlc_iucn) %>%
                   rename(criteria = raw_criteria) %>%
                   rename(redListCriteriaEurope = raw_rlc_europe)
                  
