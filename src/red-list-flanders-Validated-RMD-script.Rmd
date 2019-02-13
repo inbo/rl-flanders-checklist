@@ -61,6 +61,7 @@ raw_data_file <- "../data/raw/validated/ValidatedRedListsSource.csv"
 
 dwc_taxon_file <- "../data/processed/validated/taxonValidatedList.csv"
 dwc_distribution_file = "../data/processed/validated/distributionValidatedList.csv"
+dwc_description_file = "../data/processed/validated/descriptionvalidated.csv"
 ```
 
 # Read and pre-process raw data
@@ -350,6 +351,57 @@ distribution %<>% rename(biome = raw_biome) %>%
 
 
 ```
+ 
+## Create Description Extension
+
+
+
+```{r start_taxon}
+
+description <- raw_data
+
+head(description)
+```
+
+```{r}
+description %<>% select(raw_unique_id, raw_biome, raw_biotope1, raw_biotope2, raw_cuddliness, raw_lifespan, raw_mobility, raw_nutrient_level, raw_spine )
+
+#description %<>% select(raw_unique_id, raw_biome)
+
+head(description)
+```
+
+## Columns into rows
+
+```{r}
+desc <-  description %>% 
+  gather(key = type_measure, value = value, -raw_unique_id)
+View(desc)
+
+```
+
+
+```{r}
+df <- tibble::tibble(
+ raw_unique_id = c("INBO_2013_VAL_1", "INBO_2013_VAL_2", "INBO_2013_VAL_3"), 
+ biome = c("a", "b", "c"), 
+ biotope1 = c("Dimi", "Damiano", "Peter"),
+ biotope2 = c("AHAH", "GHG", "HIH"),
+ cuddliness = c("DOG", "CAT", "SHEEP"))
+df
+
+df %>%
+ gather(key = type_measure, value = value, -raw_unique_id)
+```
+
+
+```{r}
+
+
+head(description)
+
+```
+
 
 ## Post-processing
 
