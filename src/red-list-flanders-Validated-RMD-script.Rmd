@@ -352,57 +352,6 @@ distribution %<>% rename(biome = raw_biome) %>%
 
 ```
  
-## Create Description Extension
-
-
-
-```{r start_taxon}
-
-description <- raw_data
-
-head(description)
-```
-
-```{r}
-description %<>% select(raw_unique_id, raw_biome, raw_biotope1, raw_biotope2, raw_cuddliness, raw_lifespan, raw_mobility, raw_nutrient_level, raw_spine )
-
-#description %<>% select(raw_unique_id, raw_biome)
-
-head(description)
-```
-
-## Columns into rows
-
-```{r}
-desc <-  description %>% 
-  gather(key = type_measure, value = value, -raw_unique_id)
-View(desc)
-
-```
-
-
-```{r}
-df <- tibble::tibble(
- raw_unique_id = c("INBO_2013_VAL_1", "INBO_2013_VAL_2", "INBO_2013_VAL_3"), 
- biome = c("a", "b", "c"), 
- biotope1 = c("Dimi", "Damiano", "Peter"),
- biotope2 = c("AHAH", "GHG", "HIH"),
- cuddliness = c("DOG", "CAT", "SHEEP"))
-df
-
-df %>%
- gather(key = type_measure, value = value, -raw_unique_id)
-```
-
-
-```{r}
-
-
-head(description)
-
-```
-
-
 ## Post-processing
 
 Remove the original columns:
@@ -429,5 +378,111 @@ Save to CSV:
 
 ```{r}
 write.csv(distribution, file = dwc_distribution_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+```
+
+
+## Create Description Extension
+
+
+
+```{r start_taxon}
+
+description <- raw_data
+
+head(description)
+```
+
+```{r}
+description %<>% select(raw_unique_id, raw_biome, raw_biotope1, raw_biotope2, raw_cuddliness, raw_lifespan, raw_mobility, raw_nutrient_level, raw_spine, raw_reference )
+
+#description %<>% select(raw_unique_id, raw_biome)
+
+head(description)
+```
+
+## Post-processing
+
+```{r}
+description %<>%  rename(biome = raw_biome) %>%
+                  rename(biotope1 = raw_biotope1) %>%
+                  rename(biotope2 = raw_biotope2) %>%
+                 # rename(iucn_criteria = raw_iucn_criteria) %>%
+                 # rename(redListCriteria = raw_rlc_iucn) %>%
+                 # rename(criteria = raw_criteria) %>%
+                 # rename(redListCriteriaEurope = raw_rlc_europe) %>%
+                  rename(lifespan = raw_lifespan) %>%
+                  rename(cuddliness = raw_cuddliness) %>%
+                  rename(mobility = raw_mobility) %>%
+                  rename(spine = raw_spine) %>%
+                  rename(nutrient_level= raw_nutrient_level) %>%
+                  rename(source = raw_reference)
+
+
+```
+ 
+
+
+## Columns into rows
+
+```{r}
+description <-  description %>% 
+  gather(key = type_measure, value = value, -raw_unique_id, -source)
+View(description)
+
+```
+
+
+
+```{r}
+#df <- tibble::tibble(
+# raw_unique_id = c("INBO_2013_VAL_1", "INBO_2013_VAL_2", "INBO_2013_VAL_3"), 
+# biome = c("a", "b", "c"), 
+# biotope1 = c("Dimi", "Damiano", "Peter"),
+# biotope2 = c("AHAH", "GHG", "HIH"),
+# cuddliness = c("DOG", "CAT", "SHEEP"))
+# df
+
+#df %>%
+# gather(key = type_measure, value = value, -raw_unique_id)
+```
+
+
+```{r}
+
+
+head(description)
+
+```
+###taxonID
+```{r}
+description %<>% rename(taxonID = raw_unique_id)
+```
+
+###type_measure
+```{r}
+description %<>% rename(type = type_measure)
+```
+
+###type_measure
+```{r}
+description %<>% rename(description = value)
+```
+
+## Post-processing
+
+
+
+Sort on `taxonID`:
+
+```{r}
+description %<>% arrange(taxonID)
+```
+
+
+
+Save to CSV:
+
+```{r}
+write.csv(description, file = dwc_description_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
 ```
 
