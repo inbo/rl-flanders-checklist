@@ -252,6 +252,12 @@ distribution %<>% mutate(locality = "Flanders")
 ```
 
 
+###occurrenceStatus
+
+```{r}
+distribution %<>% mutate(occurrenceStatus = "present")
+```
+
 ###countryCode
 
 ```{r}
