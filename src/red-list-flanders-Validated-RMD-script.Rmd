@@ -45,6 +45,7 @@ library(inborutils) # wrap GBIF api data
 library(readr)
 library(dplyr)
 library(assertthat)
+library(here)
 
 
 ```
@@ -227,7 +228,8 @@ head(dwc_taxon_file)
 Save to CSV:
 
 ```{r}
-write.csv(taxon, file = dwc_taxon_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+
+write_csv(taxon, here("data", "processed", "validated", "taxon.csv"), na = "" )
 ```
 
 # Create distribution extension
@@ -383,8 +385,10 @@ distribution %>%
 Save to CSV:
 
 ```{r}
-write.csv(distribution, file = dwc_distribution_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+write_csv(distribution, here("data", "processed", "validated", "distribution.csv"), na = "" )
 ```
+
+
 
 
 ## Create Description Extension
@@ -489,6 +493,6 @@ description %<>% arrange(taxonID)
 Save to CSV:
 
 ```{r}
-write.csv(description, file = dwc_description_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+write_csv(description, here("data", "processed", "validated", "description.csv"), na = "" )
 ```
 
