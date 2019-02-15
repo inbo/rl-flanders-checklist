@@ -420,28 +420,6 @@ View(description)
 
 ```
 
-
-
-```{r}
-#df <- tibble::tibble(
-# raw_unique_id = c("INBO_2013_VAL_1", "INBO_2013_VAL_2", "INBO_2013_VAL_3"), 
-# biome = c("a", "b", "c"), 
-# biotope1 = c("Dimi", "Damiano", "Peter"),
-# biotope2 = c("AHAH", "GHG", "HIH"),
-# cuddliness = c("DOG", "CAT", "SHEEP"))
-# df
-
-#df %>%
-# gather(key = type_measure, value = value, -raw_unique_id)
-```
-
-
-```{r}
-
-
-head(description)
-
-```
 ###taxonID
 ```{r}
 description %<>% rename(taxonID = raw_unique_id)
