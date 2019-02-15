@@ -50,20 +50,6 @@ library(here)
 
 ```
 
-Set file paths (all paths should be relative to this script):
-
-```{r}
-# Raw files:
-
-raw_data_file <- "../data/raw/validated/ValidatedRedListsSource.csv"
-
-
-# Processed files:
-
-dwc_taxon_file <- "../data/processed/validated/taxonValidatedList.csv"
-dwc_distribution_file = "../data/processed/validated/distributionValidatedList.csv"
-dwc_description_file = "../data/processed/validated/descriptionvalidated.csv"
-```
 
 # Read and pre-process raw data
 
@@ -72,8 +58,7 @@ Create a data frame `raw_data` from the source data:
 # Read the source data:
 
 ```{r}
-raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE)
-
+raw_data <- read_delim(here("data", "raw", "validated", "ValidatedRedListsSource.csv"), delim = ";")
 ```
 
 Clean the data somewhat: remove empty rows if present:
@@ -139,7 +124,6 @@ taxon %<>% rename(scientificName = raw_speciesname_as_published)
 ```
 
 
-
 ###occurrenceStatus
 
 ```{r}
@@ -152,26 +136,25 @@ taxon %<>% rename(taxonID = raw_unique_id)
 ```
 
 ###taxonRank
-taxon %<>% mutate(taxonRank = "species")
-
-
-
-
-Preview data:
-
 ```{r}
-head(raw_data)
-head(taxon)
+taxon %<>% mutate(taxonRank = "species")
 ```
+
+
 
 ### vernacularName
 ```{r}
 taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
+
+View(taxon)
 ```
 
 ### nomenclaturalCode
 
+```{r}
 taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN",raw_kingdom == "Plantae" ~ "ICBN"  )) 
+
+```
 
 
 ### kingdom
@@ -206,7 +189,6 @@ taxontest <- head(taxon, n = 100)
 View(taxontest)
 ```
 
-
 ###Request Species Information
 ```{r warning=FALSE}
 taxon%<>%
@@ -218,12 +200,17 @@ taxon%<>%
 
 
 ```
-
-Preview data:
+### remove obsolete columns
 
 ```{r}
-head(dwc_taxon_file)
+taxon %<>% select(-c(confidence, synonym, matchType, usageKey, rank)) 
+            
 ```
+#```{r}
+#taxon %<>% select(-c(matchType, usageKey)) 
+#taxon %<>% select(-c(rank)) 
+#```
+
 
 Save to CSV:
 
@@ -319,7 +306,9 @@ distribution %<>%
 ```
 
 ### establishmentMeans
-
+```{r}
+distribution %<>% mutate(establishmentMeans = "native")
+```
 
 ### occurrenceRemarks
 
@@ -344,7 +333,7 @@ distribution %<>% rename(source = raw_reference)
 
 ### Non DwC_terms
 
-```{r}
+```{r eval=FALSE} 
 distribution %<>% rename(biome = raw_biome) %>%
                   rename(biotope1 = raw_biotope1) %>%
                   #rename(iucn_criteria = raw_iucn_criteria) %>%
@@ -374,13 +363,6 @@ Sort on `taxonID`:
 distribution %<>% arrange(taxonID)
 ```
 
-Preview data:
-
-```{r}
-distribution %>%
-  mutate(source = substr(source, 1, 10)) %>% # Shorten source to make it easier to display
-  head()
-```
 
 Save to CSV:
 
@@ -399,15 +381,12 @@ write_csv(distribution, here("data", "processed", "validated", "distribution.csv
 
 description <- raw_data
 
-head(description)
+
 ```
 
 ```{r}
 description %<>% select(raw_unique_id, raw_biome, raw_biotope1, raw_biotope2, raw_cuddliness, raw_lifespan, raw_mobility, raw_nutrient_level, raw_spine, raw_reference )
 
-#description %<>% select(raw_unique_id, raw_biome)
-
-head(description)
 ```
 
 ## Post-processing
@@ -486,6 +465,7 @@ Sort on `taxonID`:
 
 ```{r}
 description %<>% arrange(taxonID)
+View(description)
 ```
 
 
