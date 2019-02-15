@@ -45,34 +45,24 @@ library(inborutils) # wrap GBIF api data
 library(readr)
 library(dplyr)
 library(assertthat)
+library(here)
 
 
 ```
 
-Set file paths (all paths should be relative to this script):
-
-```{r}
-# Raw files:
-
-raw_data_file <- "../data/raw/unvalidated/NonValidatedRedListsSource.csv"
-
-
-# Processed files:
-
-dwc_taxon_file <- "../data/processed/unvalidated/taxonUnValidatedList.csv"
-dwc_distribution_file = "../data/processed/unvalidated/distributionUnValidatedList.csv"
-```
 
 # Read and pre-process raw data
 
 Create a data frame `raw_data` from the source data:
 
+
 # Read the source data:
 
 ```{r}
-raw_data <- read_delim(raw_data_file, ";", escape_double = FALSE, trim_ws = TRUE)
-
+raw_data <- read_delim(here("data", "raw", "unvalidated", "NonValidatedRedListsSource.csv"), delim = ";")
+View(raw_data)
 ```
+
 
 Clean the data somewhat: remove empty rows if present:
 
@@ -169,7 +159,10 @@ taxon %<>% rename(vernacularName = raw_speciesname_dutch)
 
 ### nomenclaturalCode
 
+```{r}
 taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN",raw_kingdom == "Plantae" ~ "ICBN"  )) 
+
+```
 
 
 ### kingdom
@@ -216,18 +209,25 @@ taxon%<>%
 
 
 ```
-
-Preview data:
+### remove obsolete columns
 
 ```{r}
-head(dwc_taxon_file)
+taxon %<>% select(-c(confidence, synonym, matchType, usageKey, rank)) 
+            
 ```
+#```{r}
+#taxon %<>% select(-c(matchType, usageKey)) 
+#taxon %<>% select(-c(rank)) 
+#```
+
 
 Save to CSV:
 
 ```{r}
-write.csv(taxon, file = dwc_taxon_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+
+write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "" )
 ```
+
 
 # Create distribution extension
 
@@ -248,6 +248,12 @@ distribution %<>% rename(taxonID = raw_unique_id)
 
 ```{r}
 distribution %<>% mutate(locality = "Flanders")
+```
+
+###occurrenceStatus
+
+```{r}
+distribution %<>% mutate(occurrenceStatus = "present")
 ```
 
 
@@ -314,6 +320,10 @@ distribution %<>%
 
 ### establishmentMeans
 
+```{r}
+distribution %<>% mutate(establishmentMeans = "native")
+```
+
 ### occurrenceRemarks
 
 ```{r}
@@ -372,9 +382,9 @@ distribution %>%
   head()
 ```
 
+
 Save to CSV:
 
 ```{r}
-write.csv(distribution, file = dwc_distribution_file, na = "", row.names = FALSE, fileEncoding = "UTF-8")
+write_csv(distribution, here("data", "processed", "unvalidated", "distribution.csv"), na = "" )
 ```
-
