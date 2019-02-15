@@ -82,12 +82,6 @@ Add prefix `raw_` to all column names to avoid name clashes with Darwin Core ter
 colnames(raw_data) <- paste0("raw_", colnames(raw_data))
 ```
  
-Preview data:
-
-```{r}
-head(raw_data)
-
-```
 
 # Create taxon core
 
@@ -127,7 +121,6 @@ taxon %<>% rename(scientificName = raw_speciesname_as_published)
 ```
 
 
-
 ###occurrenceStatus
 
 ```{r}
@@ -141,16 +134,6 @@ taxon %<>% rename(taxonID = raw_unique_id)
 
 ###taxonRank
 taxon %<>% mutate(taxonRank = "species")
-
-
-
-
-Preview data:
-
-```{r}
-head(raw_data)
-head(taxon)
-```
 
 ### vernacularName
 ```{r}
@@ -185,16 +168,10 @@ Remove the original columns:
 taxon %<>% select(-starts_with("raw_"))
 ```
 
-Sort on `taxonID`:
+# Sort on `taxonID`:
 
 ```{r}
 taxon %<>% arrange(taxonID)
-```
-
-```{r}
-View(taxon)
-taxontest <- head(taxon, n = 100)
-View(taxontest)
 ```
 
 
@@ -215,10 +192,6 @@ taxon%<>%
 taxon %<>% select(-c(confidence, synonym, matchType, usageKey, rank)) 
             
 ```
-#```{r}
-#taxon %<>% select(-c(matchType, usageKey)) 
-#taxon %<>% select(-c(rank)) 
-#```
 
 
 Save to CSV:
@@ -372,14 +345,6 @@ Sort on `taxonID`:
 
 ```{r}
 distribution %<>% arrange(taxonID)
-```
-
-Preview data:
-
-```{r}
-distribution %>%
-  mutate(source = substr(source, 1, 10)) %>% # Shorten source to make it easier to display
-  head()
 ```
 
 
