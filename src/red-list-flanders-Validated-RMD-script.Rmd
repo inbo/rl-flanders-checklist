@@ -261,10 +261,10 @@ distribution%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
   
 ```
 
-### treadStatus
+### treatStatus
 ```{r}
 distribution %<>%
- mutate(threadStatus = recode (raw_rlc_as_published
+ mutate(threatStatus = recode (raw_rlc_as_published
       , "Geografisch beperkt" = "Geographically Limited (NT)"
       , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
       , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
