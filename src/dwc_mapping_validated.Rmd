@@ -312,66 +312,40 @@ distribution %<>% mutate(dwc_countryCode = "BE")
 
 ### occurrenceStatus
 
-```{r}
-distribution %<>% mutate(dwc_occurrenceStatus = "present")
-```
-
-### treatStatus
+Set to `absent` for regionally extent species, otherwise `present`:
 
 ```{r}
-distribution %<>% mutate(dwc_threatStatus = recode(rlc_as_published,
-  "Achteruitgaand" = "Near Threatened (NT)",
-  "Bedreigd" = "Endangered (EN)",
-  "Bijna in gevaar" = "Near Threatened (NT)",
-  "Critically endangered" = "Critically Endangered (CR)",
-  "Critically Endangered" = "Critically Endangered (CR)",
-  "Disappeared" = "Disapeared (RE)",
-  "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent",
-  "Endangered" = "Endangered (EN)",
-  "Ernstig bedreigd" = "Critically Endangered (CR)",
-  "Geografisch beperkt" = "Geographically Limited (NT)",
-  "Geographically Limited" = "Geographically Limited (NT)",
-  "in Vlaanderen" = "in Flanders",
-  "Kwetsbaar" = "Vulnerable (VU)",
-  "Least concern" ="Least Concern (LC)",
-  "maar mate waarin ongekend" = "uncertain rate",
-  "Met uitsterven bedreigd" = "Critically Endangered (CR)",
-  "Met uitsterven bedreigd" = "Critically Endangered (CR)",
-  "Momenteel niet bedreigd" = "Least Concern (LC)",
-  "Momenteel niet in gevaar" = "Least Concern (LC)",
-  "Near Threatened (NT) (vrij zeldzaam)" = "Near Threatened (NT) (quite rare)",
-  "Near Threatened (NT) (zeer zeldzaam)" = "Near Threatened (NT) (very rare)",
-  "Near Threatened (NT) (zeldzaam)" = "Near Threatened (NT) (rare)",
-  "Near threatened" = "Near Threatened (NT)",
-  "Niet bedreigd" = "Least Concern (LC)",
-  "Onvoldoende data " = "Data Deficient (DD)",
-  "Onvoldoende gekend" = "Data Deficient (DD)",
-  "Probably Endangered" = "Probably Endangered (DD/PT)",
-  "Regionaal uitgestorven" = "Regionally Extinct (EX)",
-  "Regionally extinct" = "Regionally extinct (RE)",
-  "Sterk bedreigd" = "Critically Endangered (EN)",
-  "Uitgestorven" = "Regionally Extinct (REX)",
-  "Vatbaar voor bedreiging" = "Vulnerable to threat (NT)",
-  "Verdwenen" = "Disappeared (RE)",
-  "Vermoedelijk bedreigd" = "Presumably Threatened (DD/PT)",
-  "Vulnerable" = "Vulnerable (VU)",
-  "Waarschijnlijk bedreigd" = "Probably Endangered (NT)",
-  "Zeldzaam" = "Near Threatened (NT)"
+distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc_iucn, 
+  "RE" = "absent",
+  .default = "present",
+  .missing = "present"
 ))
 ```
 
-Inspect mapped values:
+### threatStatus
+
+There are two red list values, which we will map as follows:
+
+- `rlc_as_published`: Flemish status as officially published. Will be mapped _as is_ to `occurrenceRemarks` so this information is included.
+- `rlc_iucn`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
 
 ```{r}
 distribution %>%
-  group_by(rlc_as_published, dwc_threatStatus) %>%
+  group_by(rlc_as_published, rlc_iucn) %>%
   count()
+```
+
+```{r}
+distribution %<>% mutate(dwc_threatStatus = rlc_iucn)
 ```
 
 ### establishmentMeans
 
 ```{r}
-distribution %<>% mutate(dwc_establishmentMeans = "native")
+distribution %<>% mutate(dwc_establishmentMeans = case_when(
+  rlc_as_published = "Niet-inheemse broedvogel" ~ "introduced",
+  TRUE ~ "native"
+))
 ```
 
 ### eventDate
@@ -389,7 +363,7 @@ distribution %<>% mutate(dwc_source = reference)
 ### occurrenceRemarks
 
 ```{r}
-distribution %<>% mutate(dwc_occurrenceRemarks = iucn_criteria)
+distribution %<>% mutate(dwc_occurrenceRemarks = rlc_as_published)
 ```
  
 ## Post-processing
