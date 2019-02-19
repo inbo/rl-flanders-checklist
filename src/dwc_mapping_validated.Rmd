@@ -342,7 +342,7 @@ distribution %<>% mutate(dwc_threatStatus = rlc_iucn)
 
 ```{r}
 distribution %<>% mutate(dwc_establishmentMeans = case_when(
-  rlc_as_published = "Niet-inheemse broedvogel" ~ "introduced",
+  rlc_as_published == "Niet-inheemse broedvogel" ~ "introduced",
   TRUE ~ "native"
 ))
 ```
@@ -418,7 +418,7 @@ description_ext %<>% gather(
 Rename `biotope1` and `biotope2` to `biotope`:
 
 ```{r}
-description_ext %<>% mutate(key = recode(key,
+description_ext %<>% mutate(type = recode(type,
   "biotope1" = "biotope",
   "biotope2" = "biotope"
 ))
