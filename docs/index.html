@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>index.utf8</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="static/css/custom.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">rl-flanders-checklist</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Darwin Core mapping
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="dwc_mapping_validated.html">Validated red lists</a>
+    </li>
+    <li>
+      <a href="dwc_mapping_unvalidated.html">Unvalidated red lists</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/inbo/rl-flanders-checklist">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<div id="red-lists-of-flanders-belgium" class="section level1">
+<h1>Red lists of Flanders, Belgium</h1>
+<div id="rationale" class="section level2">
+<h2>Rationale</h2>
+<p>This repository contains the functionality to standardize two checklists - the <em>Validated red lists of Flanders, Belgium</em> and the <em>Unvalidated red lists of Flanders, Belgium</em> - to <a href="https://www.gbif.org/dataset-classes">Darwin Core checklists</a> that can be harvested by <a href="http://www.gbif.org">GBIF</a>. The repository also contains some miscellaneous scripts.</p>
+</div>
+<div id="workflow" class="section level2">
+<h2>Workflow</h2>
+<p>The source data is an Access database managed by <a href="https://orcid.org/0000-0002-7947-3788">Dirk Maes</a> containing <strong>all published red lists for Flanders</strong> (<a href="https://inbo.github.io/rl-flanders-checklist/index.html">see included red lists</a>). A taxon can appear on multiple red lists. The data are split into two datasets, depending on the type of red list:</p>
+<ul>
+<li><p><strong>Validated red lists</strong>: Contains information from red lists that were developed using the IUCN protocol. The database contains species properties for these (<code>biome</code>, <code>biotope</code>, <code>cuddliness</code>, <code>lifespan</code>, <code>mobility</code>, <code>nutrient level</code>, <code>spine</code>) which has been included in the Description extension.</p>
+<p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/validated">Darwin Core files</a></p></li>
+<li><p><strong>Unvalidated red lists</strong>: Contains information from red lists that were <em>not</em> developed using the IUCN protocol.</p>
+<p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access, same file) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_unvalidated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/unprocessed/validated">Darwin Core files</a></p></li>
+</ul>
+</div>
+<div id="published-dataset" class="section level2">
+<h2>Published dataset</h2>
+<ul>
+<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-validated-checklist">Validated red lists on the IPT</a></li>
+<li><a href="">Validated red lists on GBIF</a></li>
+</ul>
+<hr />
+<ul>
+<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist">Unvalidated red list on the IPT</a></li>
+<li><a href="">Unvalidated red lists on GBIF</a></li>
+</ul>
+</div>
+<div id="repo-structure" class="section level2">
+<h2>Repo structure</h2>
+<p>The repository structure is based on <a href="http://drivendata.github.io/cookiecutter-data-science/">Cookiecutter Data Science</a> and the <a href="https://github.com/trias-project/checklist-recipe">Checklist recipe</a>. Files and directories indicated with <code>GENERATED</code> should not be edited manually.</p>
+<pre><code>├── README.md              : Description of this repository
+├── LICENSE                : Repository license
+├── rl-flanders-checklist.Rproj : RStudio project file
+├── .gitignore             : Files and directories to be ignored by git
+│
+├── data
+│   ├── raw                : Source data, input for mapping scripts 1 and 2
+│   └── processed
+│       ├── validated      : Darwin Core output of mapping script 1 GENERATED
+│       └── unvalidated    : Darwin Core output of mapping script 2 GENERATED
+│
+├── docs                   : Repository website GENERATED
+│
+└── src
+    ├── dwc_mapping_validated.Rmd : Darwin Core mapping script 1 (for validated red lists)
+    ├── dwc_mapping_unvalidated.Rmd : Darwin Core mapping script 2 (for unvalidated red lists)
+    ├── _site.yml          : Settings to build website in docs/
+    └── index.Rmd          : Template for website homepage</code></pre>
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<ol style="list-style-type: decimal">
+<li>Clone this repository to your computer</li>
+<li>Open the RStudio project file</li>
+<li>Open the <code>dwc_mapping_validated.Rmd</code> or <code>dwc_mapping_unvalidated.Rmd</code> <a href="https://rmarkdown.rstudio.com/">R Markdown file</a> in RStudio</li>
+<li>Install any required packages</li>
+<li>Click <code>Run &gt; Run All</code> to generate the processed data</li>
+<li>Alternatively, click <code>Build &gt; Build website</code> to generate the processed data and build the website in <code>docs/</code></li>
+</ol>
+</div>
+<div id="contributors" class="section level2">
+<h2>Contributors</h2>
+<p><a href="https://inbo/rl-flanders-checklist/ad-hoc-checklist/contributors">List of contributors</a></p>
+</div>
+<div id="license" class="section level2">
+<h2>License</h2>
+<p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/LICENSE">MIT License</a></p>
+</div>
+<div id="source-red-lists" class="section level2">
+<h2>Source red lists</h2>
+<div id="validated" class="section level3">
+<h3>Validated</h3>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Reference"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Taxa"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Adriaens_etal_2015","2":"39","_rn_":"1"},{"1":"Decleer_etal_2000","2":"39","_rn_":"2"},{"1":"DeKnijf_2006","2":"66","_rn_":"3"},{"1":"Desender_etal_2008","2":"382","_rn_":"4"},{"1":"Devos_etal_2004","2":"211","_rn_":"5"},{"1":"Devos_etal_2016","2":"217","_rn_":"6"},{"1":"Jooris_etal_2012","2":"22","_rn_":"7"},{"1":"Lock_etal_2013","2":"62","_rn_":"8"},{"1":"Maes_etal_2011","2":"70","_rn_":"9"},{"1":"Maes_etal_2014","2":"103","_rn_":"10"},{"1":"Maes_etal_2017","2":"52","_rn_":"11"},{"1":"Maes_VanDyck_1999","2":"68","_rn_":"12"},{"1":"Thomaes_etal_2015","2":"19","_rn_":"13"},{"1":"VanLanduyt_etal_2006","2":"1154","_rn_":"14"},{"1":"VanLanduytDeBeer_2017","2":"517","_rn_":"15"},{"1":"Verreycken_etal_2014","2":"42","_rn_":"16"},{"1":"Total","2":"3063","_rn_":"17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="unvalidated" class="section level3">
+<h3>Unvalidated</h3>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Reference"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Taxa"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"BauwensClaus_1996","2":"19","_rn_":"1"},{"1":"Bonte_etal_2001","2":"58","_rn_":"2"},{"1":"Bosmans_1994","2":"197","_rn_":"3"},{"1":"Criel_1994","2":"69","_rn_":"4"},{"1":"DeKnijfAnselin_1996","2":"58","_rn_":"5"},{"1":"Dekoninck_etal_2003","2":"55","_rn_":"6"},{"1":"Desender_etal_1995","2":"368","_rn_":"7"},{"1":"DevosAnselin_1999","2":"71","_rn_":"8"},{"1":"Grootaert_etal_2001","2":"259","_rn_":"9"},{"1":"Lock_etal_2011","2":"45","_rn_":"10"},{"1":"Maelfait_etal_1998","2":"604","_rn_":"11"},{"1":"MeerhaegheGrootaert_1998","2":"265","_rn_":"12"},{"1":"Pollet_2000","2":"260","_rn_":"13"},{"1":"Scheers (2012)","2":"106","_rn_":"14"},{"1":"VandelannooteCoeck_1998","2":"55","_rn_":"15"},{"1":"VanLoen_etal_2006","2":"120","_rn_":"16"},{"1":"WalleynVerbeken_1999","2":"552","_rn_":"17"},{"1":"Total","2":"3161","_rn_":"18"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
