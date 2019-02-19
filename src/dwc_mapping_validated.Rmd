@@ -68,7 +68,7 @@ input_data %<>%
 
 ## Get GBIF Backbone Taxonomy information
 
-Get GBIF Backbone Taxonomy information to map taxon rank and higher classification:
+Get GBIF Backbone Taxonomy information to map taxon rank and higher classification. This will overwrite any existing column of the same name (e.g. `genus`):
 
 ```{r gbif_match_names}
 input_data %<>% gbif_species_name_match(
@@ -138,7 +138,7 @@ taxon %<>% mutate(dwc_accessRights = "https://www.inbo.be/en/norms-data-use")
 ### datasetID
 
 ```{r}
-taxon %<>% mutate(dwc_datasetID = "to_be_completed")
+taxon %<>% mutate(dwc_datasetID = "")
 ```
 
 ### institutionCode
@@ -150,13 +150,7 @@ taxon %<>% mutate(dwc_institutionCode = "INBO")
 ### datasetName
 
 ```{r}
-taxon %<>% mutate(dwc_datasetName = "Validated Red Lists Flanders Flanders, Belgium")
-```
-
-### references
-
-```{r}
-taxon %<>% mutate(dwc_references = reference)
+taxon %<>% mutate(dwc_datasetName = "Validated Red Lists of Flanders, Belgium")
 ```
 
 ### taxonID
@@ -217,21 +211,13 @@ taxon %>%
   count()
 ```
 
-Show taxa without rank:
-
-```{r}
-taxon %>%
-  filter(is.na(rank)) %>%
-  select(speciesname_as_published, scientificName, usageKey)
-```
-
 ```{r}
 taxon %<>% mutate(dwc_taxonRank = recode(rank,
   "GENUS" = "genus",
   "SPECIES" = "species",
   "SUBSPECIES" = "subspecies",
   "VARIETY" = "variety",
-  .missing = "species" # Set missing ranks to species
+  .missing = ""
 ))
 ```
 
@@ -253,13 +239,7 @@ taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
 ### taxonomicStatus
 
 ```{r}
-taxon %<>% mutate(dwc_status = status)
-```
-
-### occurrenceStatus
-
-```{r}
-taxon %<>% mutate(dwc_occurrenceStatus = "present")
+taxon %<>% mutate(dwc_status = str_to_lower(status))
 ```
 
 ## Post-processing
