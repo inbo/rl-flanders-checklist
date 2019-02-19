@@ -288,32 +288,6 @@ Preview data:
 taxon %>% head()
 ```
 
-Order columns in same order as Dimi did:
-
-```{r}
-taxon %<>% select(
-  kingdom,
-  scientificName,
-  taxonID,
-  vernacularName,
-  references,
-  language,
-  license,
-  rightsHolder,
-  datasetID,
-  datasetName,
-  occurrenceStatus,
-  taxonRank,
-  nomenclaturalCode,
-  order,
-  phylum,
-  genus,
-  class,
-  status,
-  family
-)
-```
-
 Save to CSV:
 
 ```{r}
@@ -464,23 +438,6 @@ Preview data:
 distribution %>% head()
 ```
 
-Order columns in same order as Dimi did:
-
-```{r}
-distribution %<>% select(
-  taxonID,
-  occurrenceRemarks,
-  eventDate,
-  source,
-  locality,
-  occurrenceStatus,
-  countryCode,
-  locationID,
-  threatStatus,
-  establishmentMeans
-)
-```
-
 Save to CSV:
 
 ```{r}
@@ -585,17 +542,6 @@ Preview data:
 
 ```{r}
 description_ext %>% head()
-```
-
-Order columns in same order as Dimi did:
-
-```{r}
-description_ext %<>% select(
-  taxonID,
-  source,
-  type,
-  description
-)
 ```
 
 Save to CSV:
