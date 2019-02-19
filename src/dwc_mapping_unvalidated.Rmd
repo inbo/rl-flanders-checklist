@@ -1,256 +1,358 @@
 ---
 title: "Darwin Core mapping"
-subtitle: "For: Unvalidated Red Lists Flanders, Belgium"
+subtitle: "For: Unvalidated red lists of Flanders, Belgium"
 author:
-- Lien Reyserhove
-- Peter Desmet
 - Dimitri Brosens
+- Peter Desmet
+- Lien Reyserhove
+- Dirk Maes
 date: "`r Sys.Date()`"
 output:
   html_document:
+    df_print: paged
+    number_sections: true
     toc: true
     toc_depth: 3
     toc_float: true
-    number_sections: true
 ---
 
-This document describes how we map the Red list data to Darwin Core. 
+This document describes how we map the unvalidated red list data for Flanders to Darwin Core. The source file for this document can be found [here](https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_unvalidated.Rmd).
 
 # Setup
 
-```{r setup, echo = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
-
-Set locale (so we use UTF-8 character encoding):
-
-```{r}
-# This works on Mac OS X, might not work on other OS
-Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 ```
 
 Load libraries:
 
 ```{r}
-library(tidyverse) # tidyverse
-library(magrittr)  # For %<>% pipes
-library(janitor)    # For cleaning input data
-library(knitr)      # For nicer (kable) tables
-# library(readxl)     # To read excel files
-library(stringr)    # To perform string operations
-library(digest)     # To generate hashes
-library(rgbif)      # To Match GBIF
-library(assertable) # because it sneeded for rGBIF
-library(inborutils) # wrap GBIF api data
-library(readr)
-library(dplyr)
-library(assertthat)
-library(here)
+# devtools::install_github(c("tazinho/snakecase"))
 
-
+library(tidyverse)      # To do data science
+library(magrittr)       # To use %<>% pipes
+library(here)           # To find files
+library(janitor)        # To clean input data
+library(digest)         # To generate hashes
+library(rgbif)          # To use GBIF services
+library(snakecase)      # To convert case of descriptions
 ```
 
+# Read source data
 
-# Read and pre-process raw data
-
-Create a data frame `raw_data` from the source data:
-
-
-# Read the source data:
+Create a data frame `input_data` from the source data:
 
 ```{r}
-raw_data <- read_delim(here("data", "raw", "unvalidated", "NonValidatedRedListsSource.csv"), delim = ";")
-View(raw_data)
+input_data <- read_delim(here("data", "raw", "unvalidated", "NonValidatedRedListsSource.csv"), delim = ";")
 ```
 
-
-Clean the data somewhat: remove empty rows if present:
+Preview data:
 
 ```{r}
-raw_data %<>%
+input_data %>% head()
+```
+
+# Process source data
+
+## Tidy data
+
+Clean data somewhat:
+
+```{r}
+input_data %<>%
   remove_empty("rows") %>%    # Remove empty rows
   clean_names()               # Have sensible (lowercase) column names
 ```
 
+## Get GBIF Backbone Taxonomy information
 
+Get GBIF Backbone Taxonomy information to map taxon rank and higher classification. This will overwrite any existing column of the same name (e.g. `genus`):
 
-## Further pre-processing:
+```{r gbif_match_names}
+input_data %<>% gbif_species_name_match(
+  name_col = "speciesname_as_published", 
+  gbif_terms = c(
+    "usageKey", "kingdom", "phylum", "class", "order", "family", "genus", 
+    "scientificName", "rank", "status", "matchType", "confidence"
+  )
+)
+```
 
-Add prefix `raw_` to all column names to avoid name clashes with Darwin Core terms:
+## Preview data
+
+Show the number of taxa per kingdom and rank:
 
 ```{r}
-colnames(raw_data) <- paste0("raw_", colnames(raw_data))
+input_data %>%
+  group_by(kingdom, rank) %>%
+  summarize(
+    `taxa` = n()
+  ) %>%
+  adorn_totals("row")
 ```
- 
 
-# Create taxon core
+Preview data:
+
+```{r}
+input_data %>% head()
+```
+
+# Taxon core
+
+## Pre-processing
 
 ```{r start_taxon}
-taxon <- raw_data
+taxon <- input_data
 ```
 
 ## Term mapping
+
 Map the data to [Darwin Core Taxon](http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml).
 
 ### language
-```{r}
-taxon %<>% mutate(language = "en")
 
+```{r}
+taxon %<>% mutate(dwc_language = "en")
 ```
+
 ### license
+
 ```{r}
-taxon %<>% mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/")
+taxon %<>% mutate(dwc_license = "http://creativecommons.org/publicdomain/zero/1.0/")
 ```
+
 ### rightsHolder
+
 ```{r}
-taxon %<>% mutate(rightsHolder = "INBO")
+taxon %<>% mutate(dwc_rightsHolder = "INBO")
+```
+
+### accessRights
+
+```{r}
+taxon %<>% mutate(dwc_accessRights = "https://www.inbo.be/en/norms-data-use")
 ```
 
 ### datasetID
+
 ```{r}
-taxon  %<>% mutate(datasetID = "to_be_completed")
+taxon %<>% mutate(dwc_datasetID = "to_be_completed")
 ```
-### datasetName
+
+### institutionCode
+
 ```{r}
-taxon %<>% mutate(datasetName = "Validated Red Lists Flanders Flanders, Belgium")
+taxon %<>% mutate(dwc_institutionCode = "INBO")
+```
+
+### datasetName
+
+```{r}
+taxon %<>% mutate(dwc_datasetName = "Validated Red Lists Flanders Flanders, Belgium")
+```
+
+### taxonID
+
+```{r}
+taxon %<>% mutate(dwc_taxonID = unique_id)
 ```
 
 ### scientificName
-```{r}
-taxon %<>% rename(scientificName = raw_speciesname_as_published)
-```
-
-
-###occurrenceStatus
 
 ```{r}
-taxon %<>% mutate(occurrenceStatus = "present")
+taxon %<>% mutate(dwc_scientificName = speciesname_as_published)
 ```
 
-###taxonID
+### kingdom
+
 ```{r}
-taxon %<>% rename(taxonID = raw_unique_id)
+taxon %<>% mutate(dwc_kingdom = kingdom)
 ```
 
-###taxonRank
-taxon %<>% mutate(taxonRank = "species")
+### phylum
+
+```{r}
+taxon %<>% mutate(dwc_phylum = phylum)
+```
+
+### class
+
+```{r}
+taxon %<>% mutate(dwc_class = class)
+```
+
+### order
+
+```{r}
+taxon %<>% mutate(dwc_order = order)
+```
+
+### family
+
+```{r}
+taxon %<>% mutate(dwc_family = family)
+```
+
+### genus
+
+```{r}
+taxon %<>% mutate(dwc_genus = genus)
+```
+
+### taxonRank
+
+Inspect values:
+
+```{r}
+taxon %>%
+  group_by(rank) %>%
+  count()
+```
+
+```{r}
+taxon %<>% mutate(dwc_taxonRank = recode(rank,
+  "GENUS" = "genus",
+  "SPECIES" = "species",
+  "SUBSPECIES" = "subspecies",
+  "VARIETY" = "variety",
+  .missing = ""
+))
+taxon %<>% mutate(dwc_taxonRank = "species")
+```
 
 ### vernacularName
+
 ```{r}
-taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
+taxon %<>% mutate(dwc_vernacularName = speciesname_dutch)
 ```
 
 ### nomenclaturalCode
 
 ```{r}
-taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN",raw_kingdom == "Plantae" ~ "ICBN"  )) 
-
+taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
+  kingdom == "Animalia" ~ "ICZN",
+  kingdom == "Plantae" ~ "ICBN"
+))
 ```
 
-
-### kingdom
-
-```{r}
-taxon %<>% rename(kingdom = raw_kingdom)
-```
-
-### references
+### extra
 
 ```{r}
-taxon %<>% rename(references = raw_reference)
+taxon %<>% mutate(
+  dwc_status = status,
+  dwc_references = reference,
+  dwc_occurrenceStatus = "present"
+)
 ```
  
 ## Post-processing
 
-Remove the original columns:
+Only keep the Darwin Core columns:
 
 ```{r}
-taxon %<>% select(-starts_with("raw_"))
+taxon %<>% select(starts_with("dwc_"))
 ```
 
-# Sort on `taxonID`:
+Drop the `dwc_` prefix:
+
+```{r}
+colnames(taxon) <- str_replace(colnames(taxon), "dwc_", "")
+```
+
+Sort on `taxonID` (to maintain some consistency between updates of the dataset):
 
 ```{r}
 taxon %<>% arrange(taxonID)
 ```
 
-
-###Request Species Information
-```{r warning=FALSE}
-taxon%<>%
-   gbif_species_name_match(name_col = "scientificName", 
-                           gbif_terms= c('usageKey', 'scientificName', 'rank', 
-                                         'order','matchType', 'phylum', 'kingdom',
-                                         'genus','class','confidence',  'synonym',
-                                         'status','family')) 
-
-
-```
-### remove obsolete columns
+Preview data:
 
 ```{r}
-taxon %<>% select(-c(confidence, synonym, matchType, usageKey, rank)) 
-            
+taxon %>% head()
 ```
 
+Order columns to compare in git:
+
+```{r}
+taxon %<>% select(
+  kingdom,scientificName,taxonID,vernacularName,references,language,license,rightsHolder,datasetID,datasetName,occurrenceStatus,nomenclaturalCode,order,phylum,genus,class,status,family
+)
+```
 
 Save to CSV:
 
 ```{r}
-
-write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "" )
+write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "")
 ```
 
+# Distribution extension
 
-# Create distribution extension
+## Pre-processing
 
 ```{r start_distribution}
-distribution <- raw_data
+distribution <- input_data
 ```
 
 ## Term mapping
 
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
 
-###taxonID
+### taxonID
+
 ```{r}
-distribution %<>% rename(taxonID = raw_unique_id)
+distribution %<>% mutate(dwc_taxonID = unique_id)
+```
+
+### locationID
+
+```{r}
+distribution %<>% mutate(dwc_locationID = "ISO_3166-2:BE-VLG")
 ```
 
 ### locality
 
 ```{r}
-distribution %<>% mutate(locality = "Flanders")
+distribution %<>% mutate(dwc_locality = "Flanders")
 ```
 
-###occurrenceStatus
+### countryCode
 
 ```{r}
-distribution %<>% mutate(occurrenceStatus = "present")
+distribution %<>% mutate(dwc_countryCode = "BE")
 ```
 
+### occurrenceStatus
 
-###countryCode
+Set to `absent` for regionally extent species, otherwise `present`:
 
-```{r}
-distribution %<>% mutate(countryCode = "BE")
+```{r eval = FALSE}
+distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc, 
+  "RE" = "absent",
+  .default = "present",
+  .missing = "present"
+))
+distribution %<>% mutate(dwc_occurrenceStatus = "present")
 ```
 
+### threatStatus
 
-###locationID
+There are two red list values, which we will map as follows:
 
-```{r}
-distribution%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
-  
+- `rlc_as_published`: Flemish status as officially published. Will be mapped _as is_ to `occurrenceRemarks` so this information is included.
+- `rlc`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
+
+```{r eval = FALSE}
+distribution %>%
+  group_by(rlc_as_published, rlc) %>%
+  count()
 ```
 
-### treadStatus
-
+```{r eval = FALSE}
+distribution %<>% mutate(dwc_threatStatus = rlc)
+```
 
 ```{r}
-
-distribution %<>%
- mutate(threadStatus = recode (raw_rlc_as_published
+distribution %<>% mutate(dwc_threadStatus = recode(rlc_as_published
       , "Geografisch beperkt" = "Geographically Limited (NT)"
       , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
       , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
@@ -287,58 +389,56 @@ distribution %<>%
       , "Onvoldoende data "= "Data Deficient (DD)"
       , "Regionaal uitgestorven"="Regionally Extinct (EX)"
       , "maar mate waarin ongekend"="uncertain rate"
-      , "in Vlaanderen"="in Flanders")) 
-  
+      , "in Vlaanderen"="in Flanders"
+))
 ```
 
 ### establishmentMeans
 
 ```{r}
-distribution %<>% mutate(establishmentMeans = "native")
+distribution %<>% mutate(dwc_establishmentMeans = "native")
+```
+
+### eventDate
+
+```{r}
+distribution %<>% mutate(dwc_eventDate = year_published)
+```
+
+### source
+
+```{r}
+distribution %<>% mutate(dwc_source = reference)
 ```
 
 ### occurrenceRemarks
 
 ```{r}
-#distribution %<>% rename(occurrenceRemarks = raw_iucn_criteria)
+distribution %<>% mutate(dwc_occurrenceRemarks = rlc_as_published)
 ```
 
-### eventDate
-
-
-```{r}
-distribution %<>% rename(eventDate = raw_year_published)
-```
-
-
-### source
+### extra
 
 ```{r}
-distribution %<>% rename(source = raw_reference)
-```
-
-### Non DwC_terms
-
-```{r}
-head(distribution)
-
-```
-
-```{r}
-distribution %<>% 
-                  rename(redListCriteria = raw_rlc_iucn) %>%
-                  rename(criteria = raw_criteria) %>%
-                  rename(redListCriteriaEurope = raw_rlc_europe)
-                 
-                 
+distribution %<>% mutate(
+  dwc_redListCriteria = rlc_iucn,
+  dwc_criteria = criteria,
+  dwc_redListCriteriaEurope = rlc_europe
+)
 ```
 
 ## Post-processing
 
-Remove the original columns:
+Only keep the Darwin Core columns:
 
 ```{r}
-distribution %<>% select(-starts_with("raw_"))
+distribution %<>% select(starts_with("dwc_"))
+```
+
+Drop the `dwc_` prefix:
+
+```{r}
+colnames(distribution) <- str_replace(colnames(distribution), "dwc_", "")
 ```
 
 Sort on `taxonID`:
@@ -347,6 +447,19 @@ Sort on `taxonID`:
 distribution %<>% arrange(taxonID)
 ```
 
+Preview data:
+
+```{r}
+distribution %>% head()
+```
+
+Order columns to compare in git:
+
+```{r}
+distribution %<>% select(
+  taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threadStatus,establishmentMeans
+)
+```
 
 Save to CSV:
 
