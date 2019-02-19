@@ -27,15 +27,14 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 Load libraries:
 
 ```{r}
+# devtools::install_github(c("inbo/inborutils", "tazinho/snakecase"))
+
 library(tidyverse)      # To do data science
 library(magrittr)       # To use %<>% pipes
 library(here)           # To find files
 library(janitor)        # To clean input data
 library(digest)         # To generate hashes
 library(rgbif)          # To use GBIF services
-
-# devtools::install_github(c("inbo/inborutils", "tazinho/snakecase"))
-
 library(inborutils)     # To use gbif_name_match function
 library(snakecase)      # To convert case of descriptions
 ```
@@ -239,7 +238,7 @@ taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
 ### taxonomicStatus
 
 ```{r}
-taxon %<>% mutate(dwc_status = str_to_lower(status))
+taxon %<>% mutate(dwc_taxonomicStatus = str_to_lower(status))
 ```
 
 ## Post-processing
