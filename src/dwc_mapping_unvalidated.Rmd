@@ -136,7 +136,7 @@ taxon %<>% mutate(dwc_accessRights = "https://www.inbo.be/en/norms-data-use")
 ### datasetID
 
 ```{r}
-taxon %<>% mutate(dwc_datasetID = "to_be_completed")
+taxon %<>% mutate(dwc_datasetID = "")
 ```
 
 ### institutionCode
@@ -148,7 +148,7 @@ taxon %<>% mutate(dwc_institutionCode = "INBO")
 ### datasetName
 
 ```{r}
-taxon %<>% mutate(dwc_datasetName = "Validated Red Lists Flanders Flanders, Belgium")
+taxon %<>% mutate(dwc_datasetName = "Unvalidated Red Lists of Flanders, Belgium")
 ```
 
 ### taxonID
@@ -352,7 +352,7 @@ distribution %<>% mutate(dwc_threatStatus = rlc)
 ```
 
 ```{r}
-distribution %<>% mutate(dwc_threadStatus = recode(rlc_as_published
+distribution %<>% mutate(dwc_threatStatus = recode(rlc_as_published
       , "Geografisch beperkt" = "Geographically Limited (NT)"
       , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
       , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
@@ -457,7 +457,7 @@ Order columns to compare in git:
 
 ```{r}
 distribution %<>% select(
-  taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threadStatus,establishmentMeans
+  taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threatStatus,establishmentMeans
 )
 ```
 

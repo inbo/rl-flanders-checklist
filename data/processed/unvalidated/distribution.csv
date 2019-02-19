@@ -1,4 +1,4 @@
-taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threadStatus,establishmentMeans
+taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threatStatus,establishmentMeans
 INBO_RL_AMP_1996_NONVAL_1,EN,LC,Regional,1996,BauwensClaus_1996,Flanders,present,BE,ISO_3166-2:BE-VLG,Endangered (EN),native
 INBO_RL_AMP_1996_NONVAL_10,NT,LC,Regional,1996,BauwensClaus_1996,Flanders,present,BE,ISO_3166-2:BE-VLG,Near Threatened (NT),native
 INBO_RL_AMP_1996_NONVAL_11,LC,LC,Regional,1996,BauwensClaus_1996,Flanders,present,BE,ISO_3166-2:BE-VLG,Least Concern (LC),native
