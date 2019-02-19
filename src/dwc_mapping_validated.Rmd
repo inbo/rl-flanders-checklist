@@ -65,27 +65,17 @@ input_data %<>%
   clean_names()               # Have sensible (lowercase) column names
 ```
 
-## Get GBIF Backbone Taxonomy information
 
-Get GBIF Backbone Taxonomy information to map taxon rank and higher classification. This will overwrite any existing column of the same name (e.g. `genus`):
 
-```{r gbif_match_names}
-input_data %<>% gbif_species_name_match(
-  name_col = "speciesname_as_published", 
-  gbif_terms = c(
-    "usageKey", "kingdom", "phylum", "class", "order", "family", "genus", 
-    "scientificName", "rank", "status", "matchType", "confidence"
-  )
-)
 ```
 
 ## Preview data
 
-Show the number of taxa per kingdom and rank:
+Show the number of taxa per kingdom:
 
 ```{r}
 input_data %>%
-  group_by(kingdom, rank) %>%
+  group_by(kingdom) %>%
   summarize(
     `taxa` = n()
   ) %>%
@@ -211,13 +201,7 @@ taxon %>%
 ```
 
 ```{r}
-taxon %<>% mutate(dwc_taxonRank = recode(rank,
-  "GENUS" = "genus",
-  "SPECIES" = "species",
-  "SUBSPECIES" = "subspecies",
-  "VARIETY" = "variety",
-  .missing = ""
-))
+taxon %<>% mutate(dwc_taxonRank = "species")
 ```
 
 ### vernacularName
@@ -238,7 +222,7 @@ taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
 ### taxonomicStatus
 
 ```{r}
-taxon %<>% mutate(dwc_taxonomicStatus = str_to_lower(status))
+taxon %<>% mutate(dwc_taxonomicStatus = "accepted")
 ```
 
 ## Post-processing
