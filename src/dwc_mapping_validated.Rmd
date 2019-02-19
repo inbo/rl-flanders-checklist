@@ -497,7 +497,7 @@ description_ext %<>% mutate(dwc_taxonID = unique_id)
 ### description
 
 ```{r}
-description_ext %<>% mutate(dwc_description = description)
+description_ext %<>% mutate(dwc_description = clean_description)
 ```
 
 ### type
