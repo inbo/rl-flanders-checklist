@@ -399,16 +399,6 @@ distribution %<>% mutate(dwc_source = reference)
 distribution %<>% mutate(dwc_occurrenceRemarks = rlc_as_published)
 ```
 
-### extra
-
-```{r}
-distribution %<>% mutate(
-  dwc_redListCriteria = rlc_iucn,
-  dwc_criteria = criteria,
-  dwc_redListCriteriaEurope = rlc_europe
-)
-```
-
 ## Post-processing
 
 Only keep the Darwin Core columns:
@@ -433,14 +423,6 @@ Preview data:
 
 ```{r}
 distribution %>% head()
-```
-
-Order columns to compare in git:
-
-```{r}
-distribution %<>% select(
-  taxonID,redListCriteria,redListCriteriaEurope,criteria,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threatStatus,establishmentMeans
-)
 ```
 
 Save to CSV:
