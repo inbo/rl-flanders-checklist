@@ -148,7 +148,7 @@ taxon %<>% mutate(dwc_institutionCode = "INBO")
 ### datasetName
 
 ```{r}
-taxon %<>% mutate(dwc_datasetName = "Unvalidated Red Lists of Flanders, Belgium")
+taxon %<>% mutate(dwc_datasetName = "Unvalidated red lists of Flanders, Belgium")
 ```
 
 ### taxonID
