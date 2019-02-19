@@ -219,12 +219,6 @@ taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
 ))
 ```
 
-### taxonomicStatus
-
-```{r}
-taxon %<>% mutate(dwc_taxonomicStatus = "accepted")
-```
-
 ## Post-processing
 
 Only keep the Darwin Core columns:
