@@ -152,8 +152,10 @@ taxon %<>% mutate(dwc_taxonID = unique_id)
 
 ### scientificName
 
+Use the name as originally published on the checklist, but remove trailing whitespace:
+
 ```{r}
-taxon %<>% mutate(dwc_scientificName = speciesname_as_published)
+taxon %<>% mutate(dwc_scientificName = str_trim(speciesname_as_published))
 ```
 
 ### kingdom
