@@ -1,4 +1,4 @@
-taxonID,occurrenceRemarks,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threadStatus,establishmentMeans
+taxonID,occurrenceRemarks,eventDate,source,locality,occurrenceStatus,countryCode,locationID,threatStatus,establishmentMeans
 INBO_RL_AMP_2013_VAL_1,B2a(i)b(iii)c(iv);C2a(i),2013,Jooris_etal_2012,Flanders,present,BE,ISO_3166-2:BE-VLG,Endangered (EN),native
 INBO_RL_AMP_2013_VAL_10,,2013,Jooris_etal_2012,Flanders,present,BE,ISO_3166-2:BE-VLG,Least Concern (LC),native
 INBO_RL_AMP_2013_VAL_11,"A2c;B2a(i)b(ii,iii)",2013,Jooris_etal_2012,Flanders,present,BE,ISO_3166-2:BE-VLG,Near Threatened (NT),native
