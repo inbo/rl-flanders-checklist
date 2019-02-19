@@ -235,16 +235,6 @@ taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
 ))
 ```
 
-### extra
-
-```{r}
-taxon %<>% mutate(
-  dwc_status = status,
-  dwc_references = reference,
-  dwc_occurrenceStatus = "present"
-)
-```
- 
 ## Post-processing
 
 Only keep the Darwin Core columns:
@@ -269,14 +259,6 @@ Preview data:
 
 ```{r}
 taxon %>% head()
-```
-
-Order columns to compare in git:
-
-```{r}
-taxon %<>% select(
-  kingdom,scientificName,taxonID,vernacularName,references,language,license,rightsHolder,datasetID,datasetName,occurrenceStatus,nomenclaturalCode,order,phylum,genus,class,status,family
-)
 ```
 
 Save to CSV:
