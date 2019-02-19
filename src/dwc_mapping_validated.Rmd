@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 Load libraries:
 
 ```{r}
-# devtools::install_github(c("inbo/inborutils", "tazinho/snakecase"))
+# devtools::install_github(c("tazinho/snakecase"))
 
 library(tidyverse)      # To do data science
 library(magrittr)       # To use %<>% pipes
@@ -35,7 +35,6 @@ library(here)           # To find files
 library(janitor)        # To clean input data
 library(digest)         # To generate hashes
 library(rgbif)          # To use GBIF services
-library(inborutils)     # To use gbif_name_match function
 library(snakecase)      # To convert case of descriptions
 ```
 
@@ -47,10 +46,16 @@ Create a data frame `input_data` from the source data:
 input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-Preview data:
+Filter on validated taxa:
 
 ```{r}
-input_data %>% head()
+input_data %<>% filter(Validated == "Validated")
+```
+
+Number of records:
+
+```{r}
+input_data %>% nrow()
 ```
 
 # Process source data
@@ -65,10 +70,34 @@ input_data %<>%
   clean_names()               # Have sensible (lowercase) column names
 ```
 
-## Filter on validated taxa:
+## Scientific names
+
+The scientific names contain trailing spaces:
 
 ```{r}
-input_data %<>% filter(validated == "Validated")
+input_data %<>% mutate(
+  speciesname_as_published = str_trim(speciesname_as_published),
+  speciesname_unique = str_trim(speciesname_unique)
+)
+```
+
+## Taxon ranks
+
+Use the [GBIF nameparser](https://www.gbif.org/tools/name-parser) to retrieve nomenclatural information for the scientific names in the checklist:
+
+```{r parse_names}
+parsed_names <- input_data %>%
+  distinct(speciesname_as_published) %>%
+  pull() %>% # Create vector from dataframe
+  parsenames() # An rgbif function
+```
+
+The nameparser function also provides information about the rank of the taxon (in `rankmarker`). Here we join this information with our checklist. Cleaning these ranks will done in the Taxon Core mapping:
+
+```{r}
+input_data %<>% left_join(
+  select(parsed_names, scientificname, rankmarker),
+  by = c("speciesname_as_published" = "scientificname"))
 ```
 
 ## Preview data
@@ -152,10 +181,10 @@ taxon %<>% mutate(dwc_taxonID = unique_id)
 
 ### scientificName
 
-Use the name as originally published on the checklist, but remove trailing whitespace:
+Use the name as originally published on the checklist:
 
 ```{r}
-taxon %<>% mutate(dwc_scientificName = str_trim(speciesname_as_published))
+taxon %<>% mutate(dwc_scientificName = speciesname_as_published)
 ```
 
 ### kingdom
@@ -196,8 +225,34 @@ taxon %<>% mutate(dwc_genus = genus)
 
 ### taxonRank
 
+Inspect values:
+
 ```{r}
-taxon %<>% mutate(dwc_taxonRank = "species")
+taxon %>%
+  group_by(rankmarker) %>%
+  count()
+```
+
+Map values by recoding to the [GBIF rank vocabulary](http://rs.gbif.org/vocabulary/gbif/rank_2015-04-24.xml):
+
+```{r}
+taxon %<>% mutate(dwc_taxonRank = recode(rankmarker,
+  "infrasp." = "infraspecificname",
+  "morph" = "",
+  "sp." = "species",
+  "subsp." = "subspecies",
+  "var" = "variety",
+  .default = "",
+  .missing = ""
+))
+```
+
+Inspect mapped values: 
+
+```{r}
+taxon %>%
+  group_by(rankmarker, dwc_taxonRank) %>%
+  count()
 ```
 
 ### vernacularName
