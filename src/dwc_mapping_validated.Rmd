@@ -44,7 +44,7 @@ library(snakecase)      # To convert case of descriptions
 Create a data frame `input_data` from the source data:
 
 ```{r}
-input_data <- read_delim(here("data", "raw", "validated", "ValidatedRedListsSource.csv"), delim = ";")
+input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
 Preview data:
@@ -65,8 +65,10 @@ input_data %<>%
   clean_names()               # Have sensible (lowercase) column names
 ```
 
+## Filter on validated taxa:
 
-
+```{r}
+input_data %<>% filter(validated == "Validated")
 ```
 
 ## Preview data
@@ -192,14 +194,6 @@ taxon %<>% mutate(dwc_genus = genus)
 
 ### taxonRank
 
-Inspect values:
-
-```{r}
-taxon %>%
-  group_by(rank) %>%
-  count()
-```
-
 ```{r}
 taxon %<>% mutate(dwc_taxonRank = "species")
 ```
@@ -292,7 +286,7 @@ distribution %<>% mutate(dwc_countryCode = "BE")
 Set to `absent` for regionally extent species, otherwise `present`:
 
 ```{r}
-distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc_iucn, 
+distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc, 
   "RE" = "absent",
   .default = "present",
   .missing = "present"
@@ -304,16 +298,16 @@ distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc_iucn,
 There are two red list values, which we will map as follows:
 
 - `rlc_as_published`: Flemish status as officially published. Will be mapped _as is_ to `occurrenceRemarks` so this information is included.
-- `rlc_iucn`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
+- `rlc`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
 
 ```{r}
 distribution %>%
-  group_by(rlc_as_published, rlc_iucn) %>%
+  group_by(rlc_as_published, rlc) %>%
   count()
 ```
 
 ```{r}
-distribution %<>% mutate(dwc_threatStatus = rlc_iucn)
+distribution %<>% mutate(dwc_threatStatus = rlc)
 ```
 
 ### establishmentMeans
