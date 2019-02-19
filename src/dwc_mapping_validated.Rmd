@@ -46,7 +46,7 @@ Create a data frame `input_data` from the source data:
 input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-Filter on validated taxa:
+Filter on **validated** taxa:
 
 ```{r}
 input_data %<>% filter(Validated == "Validated")
@@ -102,11 +102,11 @@ input_data %<>% left_join(
 
 ## Preview data
 
-Show the number of taxa per kingdom:
+Show the number of taxa per kingdom and rank:
 
 ```{r}
 input_data %>%
-  group_by(kingdom) %>%
+  group_by(kingdom, rankmarker) %>%
   summarize(
     `taxa` = n()
   ) %>%
@@ -237,11 +237,10 @@ Map values by recoding to the [GBIF rank vocabulary](http://rs.gbif.org/vocabula
 
 ```{r}
 taxon %<>% mutate(dwc_taxonRank = recode(rankmarker,
-  "infrasp." = "infraspecificname",
-  "morph" = "",
   "sp." = "species",
+  "infrasp." = "infraspecificname",
   "subsp." = "subspecies",
-  "var" = "variety",
+  "var." = "variety",
   .default = "",
   .missing = ""
 ))
@@ -352,16 +351,18 @@ distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc,
 
 ### threatStatus
 
-There are two red list values, which we will map as follows:
-
-- `rlc_as_published`: Flemish status as officially published. Will be mapped _as is_ to `occurrenceRemarks` so this information is included.
-- `rlc`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
+There are two red list category columns:
 
 ```{r}
 distribution %>%
-  group_by(rlc_as_published, rlc) %>%
+  group_by(rlc, rlc_as_published) %>%
   count()
 ```
+
+This will be mapped as follows:
+
+- `rlc` → `threatStatus`: IUCN equivalent of Flemish status and according to [expected vocabulary](http://rs.gbif.org/vocabulary/iucn/threat_status.xml).
+- `rlc_as_published` → `occurrenceRemarks`: Flemish status as originally published in red list. Not according to vocabulary, but important include.
 
 ```{r}
 distribution %<>% mutate(dwc_threatStatus = rlc)
