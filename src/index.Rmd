@@ -1,0 +1,52 @@
+---
+title: ""
+---
+
+```{r, child = "../README.md"}
+```
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r include = FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+```{r include = FALSE}
+input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
+
+sources <-
+  input_data %>%
+    mutate(Validated = recode(Validated,
+      "NonValidated" = "unvalidated",
+      "Validated" = "validated",
+    )) %>%
+    group_by(Validated, Reference) %>%
+    summarize(
+      `Taxa` = n()
+    ) %>%
+    ungroup()
+```
+
+## Source red lists
+
+### Validated
+
+```{r echo = FALSE}
+sources %>%
+  filter(Validated == "validated") %>%
+  select(Reference, Taxa) %>%
+  adorn_totals("row")
+```
+
+### Unvalidated
+
+```{r echo = FALSE}
+sources %>%
+  filter(Validated == "unvalidated") %>%
+  select(Reference, Taxa) %>%
+  adorn_totals("row")
+```
