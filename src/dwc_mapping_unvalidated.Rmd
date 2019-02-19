@@ -35,7 +35,6 @@ library(here)           # To find files
 library(janitor)        # To clean input data
 library(digest)         # To generate hashes
 library(rgbif)          # To use GBIF services
-library(snakecase)      # To convert case of descriptions
 ```
 
 # Read source data
@@ -43,13 +42,19 @@ library(snakecase)      # To convert case of descriptions
 Create a data frame `input_data` from the source data:
 
 ```{r}
-input_data <- read_delim(here("data", "raw", "unvalidated", "NonValidatedRedListsSource.csv"), delim = ";")
+input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-Preview data:
+Filter on **unvalidated** taxa:
 
 ```{r}
-input_data %>% head()
+input_data %<>% filter(Validated == "NonValidated")
+```
+
+Number of records:
+
+```{r}
+input_data %>% nrow()
 ```
 
 # Process source data
@@ -64,18 +69,34 @@ input_data %<>%
   clean_names()               # Have sensible (lowercase) column names
 ```
 
-## Get GBIF Backbone Taxonomy information
+## Scientific names
 
-Get GBIF Backbone Taxonomy information to map taxon rank and higher classification. This will overwrite any existing column of the same name (e.g. `genus`):
+The scientific names contain trailing spaces:
 
-```{r gbif_match_names}
-input_data %<>% gbif_species_name_match(
-  name_col = "speciesname_as_published", 
-  gbif_terms = c(
-    "usageKey", "kingdom", "phylum", "class", "order", "family", "genus", 
-    "scientificName", "rank", "status", "matchType", "confidence"
-  )
+```{r}
+input_data %<>% mutate(
+  speciesname_as_published = str_trim(speciesname_as_published),
+  speciesname_unique = str_trim(speciesname_unique)
 )
+```
+
+## Taxon ranks
+
+Use the [GBIF nameparser](https://www.gbif.org/tools/name-parser) to retrieve nomenclatural information for the scientific names in the checklist:
+
+```{r parse_names}
+parsed_names <- input_data %>%
+  distinct(speciesname_as_published) %>%
+  pull() %>% # Create vector from dataframe
+  parsenames() # An rgbif function
+```
+
+The nameparser function also provides information about the rank of the taxon (in `rankmarker`). Here we join this information with our checklist. Cleaning these ranks will done in the Taxon Core mapping:
+
+```{r}
+input_data %<>% left_join(
+  select(parsed_names, scientificname, rankmarker),
+  by = c("speciesname_as_published" = "scientificname"))
 ```
 
 ## Preview data
@@ -84,7 +105,7 @@ Show the number of taxa per kingdom and rank:
 
 ```{r}
 input_data %>%
-  group_by(kingdom, rank) %>%
+  group_by(kingdom, rankmarker) %>%
   summarize(
     `taxa` = n()
   ) %>%
@@ -205,19 +226,29 @@ Inspect values:
 
 ```{r}
 taxon %>%
-  group_by(rank) %>%
+  group_by(rankmarker) %>%
   count()
 ```
 
+Map values by recoding to the [GBIF rank vocabulary](http://rs.gbif.org/vocabulary/gbif/rank_2015-04-24.xml):
+
 ```{r}
-taxon %<>% mutate(dwc_taxonRank = recode(rank,
-  "GENUS" = "genus",
-  "SPECIES" = "species",
-  "SUBSPECIES" = "subspecies",
-  "VARIETY" = "variety",
+taxon %<>% mutate(dwc_taxonRank = recode(rankmarker,
+  "sp." = "species",
+  "infrasp." = "infraspecificname",
+  "subsp." = "subspecies",
+  "var." = "variety",
+  .default = "",
   .missing = ""
 ))
-taxon %<>% mutate(dwc_taxonRank = "species")
+```
+
+Inspect mapped values: 
+
+```{r}
+taxon %>%
+  group_by(rankmarker, dwc_taxonRank) %>%
+  count()
 ```
 
 ### vernacularName
@@ -308,7 +339,7 @@ distribution %<>% mutate(dwc_countryCode = "BE")
 Set to `absent` for regionally extent species, otherwise `present`:
 
 ```{r}
-distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc_iucn, 
+distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc, 
   "RE" = "absent",
   .default = "present",
   .missing = "present"
@@ -317,19 +348,21 @@ distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc_iucn,
 
 ### threatStatus
 
-There are two red list values, which we will map as follows:
-
-- `rlc_as_published`: Flemish status as officially published. Will be mapped _as is_ to `occurrenceRemarks` so this information is included.
-- `rlc`: IUCN equivalent of Flemish status. Will be mapped to `threatStatus` (which expects this controlled vocabulary).
+There are two red list category columns:
 
 ```{r}
 distribution %>%
-  group_by(rlc_as_published, rlc_iucn) %>%
+  group_by(rlc, rlc_as_published) %>%
   count()
 ```
 
+These will be mapped as follows:
+
+- `rlc` → `threatStatus`: IUCN equivalent of Flemish status and according to [expected vocabulary](http://rs.gbif.org/vocabulary/iucn/threat_status.xml).
+- `rlc_as_published` → `occurrenceRemarks`: Flemish status as originally published in red list. Not according to vocabulary, but important include.
+
 ```{r}
-distribution %<>% mutate(dwc_threatStatus = rlc_iucn)
+distribution %<>% mutate(dwc_threatStatus = rlc)
 ```
 
 ### establishmentMeans
