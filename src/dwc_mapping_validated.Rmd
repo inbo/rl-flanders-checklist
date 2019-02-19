@@ -497,7 +497,10 @@ description_ext %<>% mutate(dwc_description = clean_description)
 ### type
 
 ```{r}
-description_ext %<>% mutate(dwc_type = type)
+description_ext %<>% mutate(dwc_type = case_when(
+  type == "nutrient_level" ~ "nutrient level",
+  TRUE ~ type
+))
 ```
 
 ### source
