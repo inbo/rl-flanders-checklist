@@ -1,0 +1,21 @@
+name: "Red lists of Flanders Belgium"
+output_dir: "../docs"
+include: "static"
+navbar:
+  title: "rl-flanders-checklist"
+  left:
+    - text: "Darwin Core mapping"
+      href: ""
+      menu:
+      - text: "Validated red lists"
+        href: dwc_mapping_validated.html
+      - text: "Unvalidated red lists"
+        href: dwc_mapping_unvalidated.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/inbo/rl-flanders-checklist
+output:
+  html_document:
+    theme: yeti
+    df_print: paged
+    css: "static/css/custom.css"

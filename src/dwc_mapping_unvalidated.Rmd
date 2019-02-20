@@ -1,344 +1,406 @@
 ---
 title: "Darwin Core mapping"
-subtitle: "For: Unvalidated Red Lists Flanders, Belgium"
+subtitle: "For: Unvalidated red lists of Flanders, Belgium"
 author:
-- Lien Reyserhove
-- Peter Desmet
 - Dimitri Brosens
+- Peter Desmet
+- Lien Reyserhove
+- Dirk Maes
 date: "`r Sys.Date()`"
 output:
   html_document:
+    df_print: paged
+    number_sections: true
     toc: true
     toc_depth: 3
     toc_float: true
-    number_sections: true
 ---
 
-This document describes how we map the Red list data to Darwin Core. 
+This document describes how we map the unvalidated red list data for Flanders to Darwin Core. The source file for this document can be found [here](https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_unvalidated.Rmd).
 
 # Setup
 
-```{r setup, echo = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
-
-Set locale (so we use UTF-8 character encoding):
-
-```{r}
-# This works on Mac OS X, might not work on other OS
-Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 ```
 
 Load libraries:
 
 ```{r}
-library(tidyverse) # tidyverse
-library(magrittr)  # For %<>% pipes
-library(janitor)    # For cleaning input data
-library(knitr)      # For nicer (kable) tables
-# library(readxl)     # To read excel files
-library(stringr)    # To perform string operations
-library(digest)     # To generate hashes
-library(rgbif)      # To Match GBIF
-library(assertable) # because it sneeded for rGBIF
-library(inborutils) # wrap GBIF api data
-library(readr)
-library(dplyr)
-library(assertthat)
-library(here)
+# devtools::install_github(c("tazinho/snakecase"))
 
-
+library(tidyverse)      # To do data science
+library(magrittr)       # To use %<>% pipes
+library(here)           # To find files
+library(janitor)        # To clean input data
+library(digest)         # To generate hashes
+library(rgbif)          # To use GBIF services
 ```
 
+# Read source data
 
-# Read and pre-process raw data
-
-Create a data frame `raw_data` from the source data:
-
-
-# Read the source data:
+Create a data frame `input_data` from the source data:
 
 ```{r}
-raw_data <- read_delim(here("data", "raw", "unvalidated", "NonValidatedRedListsSource.csv"), delim = ";")
-View(raw_data)
+input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-
-Clean the data somewhat: remove empty rows if present:
+Filter on **unvalidated** taxa:
 
 ```{r}
-raw_data %<>%
+input_data %<>% filter(Validated == "NonValidated")
+```
+
+Number of records:
+
+```{r}
+input_data %>% nrow()
+```
+
+# Process source data
+
+## Tidy data
+
+Clean data somewhat:
+
+```{r}
+input_data %<>%
   remove_empty("rows") %>%    # Remove empty rows
   clean_names()               # Have sensible (lowercase) column names
 ```
 
+## Scientific names
 
-
-## Further pre-processing:
-
-Add prefix `raw_` to all column names to avoid name clashes with Darwin Core terms:
+The scientific names contain trailing spaces:
 
 ```{r}
-colnames(raw_data) <- paste0("raw_", colnames(raw_data))
+input_data %<>% mutate(
+  speciesname_as_published = str_trim(speciesname_as_published),
+  speciesname_unique = str_trim(speciesname_unique)
+)
 ```
- 
 
-# Create taxon core
+## Taxon ranks
+
+Use the [GBIF nameparser](https://www.gbif.org/tools/name-parser) to retrieve nomenclatural information for the scientific names in the checklist:
+
+```{r parse_names}
+parsed_names <- input_data %>%
+  distinct(speciesname_as_published) %>%
+  pull() %>% # Create vector from dataframe
+  parsenames() # An rgbif function
+```
+
+The nameparser function also provides information about the rank of the taxon (in `rankmarker`). Here we join this information with our checklist. Cleaning these ranks will done in the Taxon Core mapping:
+
+```{r}
+input_data %<>% left_join(
+  select(parsed_names, scientificname, rankmarker),
+  by = c("speciesname_as_published" = "scientificname"))
+```
+
+## Preview data
+
+Show the number of taxa per kingdom and rank:
+
+```{r}
+input_data %>%
+  group_by(kingdom, rankmarker) %>%
+  summarize(
+    `taxa` = n()
+  ) %>%
+  adorn_totals("row")
+```
+
+Preview data:
+
+```{r}
+input_data %>% head()
+```
+
+# Taxon core
+
+## Pre-processing
 
 ```{r start_taxon}
-taxon <- raw_data
+taxon <- input_data
 ```
 
 ## Term mapping
+
 Map the data to [Darwin Core Taxon](http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml).
 
 ### language
-```{r}
-taxon %<>% mutate(language = "en")
 
+```{r}
+taxon %<>% mutate(dwc_language = "en")
 ```
+
 ### license
+
 ```{r}
-taxon %<>% mutate(license = "http://creativecommons.org/publicdomain/zero/1.0/")
+taxon %<>% mutate(dwc_license = "http://creativecommons.org/publicdomain/zero/1.0/")
 ```
+
 ### rightsHolder
+
 ```{r}
-taxon %<>% mutate(rightsHolder = "INBO")
+taxon %<>% mutate(dwc_rightsHolder = "INBO")
+```
+
+### accessRights
+
+```{r}
+taxon %<>% mutate(dwc_accessRights = "https://www.inbo.be/en/norms-data-use")
 ```
 
 ### datasetID
+
 ```{r}
-taxon  %<>% mutate(datasetID = "to_be_completed")
+taxon %<>% mutate(dwc_datasetID = "")
 ```
-### datasetName
+
+### institutionCode
+
 ```{r}
-taxon %<>% mutate(datasetName = "Validated Red Lists Flanders Flanders, Belgium")
+taxon %<>% mutate(dwc_institutionCode = "INBO")
+```
+
+### datasetName
+
+```{r}
+taxon %<>% mutate(dwc_datasetName = "Unvalidated red lists of Flanders, Belgium")
+```
+
+### taxonID
+
+```{r}
+taxon %<>% mutate(dwc_taxonID = unique_id)
 ```
 
 ### scientificName
-```{r}
-taxon %<>% rename(scientificName = raw_speciesname_as_published)
-```
-
-
-###occurrenceStatus
 
 ```{r}
-taxon %<>% mutate(occurrenceStatus = "present")
+taxon %<>% mutate(dwc_scientificName = speciesname_as_published)
 ```
 
-###taxonID
+### kingdom
+
 ```{r}
-taxon %<>% rename(taxonID = raw_unique_id)
+taxon %<>% mutate(dwc_kingdom = kingdom)
 ```
 
-###taxonRank
-taxon %<>% mutate(taxonRank = "species")
+### phylum
+
+```{r}
+taxon %<>% mutate(dwc_phylum = phylum)
+```
+
+### class
+
+```{r}
+taxon %<>% mutate(dwc_class = class)
+```
+
+### order
+
+```{r}
+taxon %<>% mutate(dwc_order = order)
+```
+
+### family
+
+```{r}
+taxon %<>% mutate(dwc_family = family)
+```
+
+### genus
+
+```{r}
+taxon %<>% mutate(dwc_genus = genus)
+```
+
+### taxonRank
+
+Inspect values:
+
+```{r}
+taxon %>%
+  group_by(rankmarker) %>%
+  count()
+```
+
+Map values by recoding to the [GBIF rank vocabulary](http://rs.gbif.org/vocabulary/gbif/rank_2015-04-24.xml):
+
+```{r}
+taxon %<>% mutate(dwc_taxonRank = recode(rankmarker,
+  "sp." = "species",
+  "infrasp." = "infraspecificname",
+  "subsp." = "subspecies",
+  "var." = "variety",
+  .default = "",
+  .missing = ""
+))
+```
+
+Inspect mapped values: 
+
+```{r}
+taxon %>%
+  group_by(rankmarker, dwc_taxonRank) %>%
+  count()
+```
 
 ### vernacularName
+
 ```{r}
-taxon %<>% rename(vernacularName = raw_speciesname_dutch) 
+taxon %<>% mutate(dwc_vernacularName = speciesname_dutch)
 ```
 
 ### nomenclaturalCode
 
 ```{r}
-taxon %<>% mutate(nomenclaturalCode =case_when(raw_kingdom == "Animalia" ~ "ICZN",raw_kingdom == "Plantae" ~ "ICBN"  )) 
-
+taxon %<>% mutate(dwc_nomenclaturalCode = case_when(
+  kingdom == "Animalia" ~ "ICZN",
+  kingdom == "Plantae" ~ "ICBN"
+))
 ```
 
-
-### kingdom
-
-```{r}
-taxon %<>% rename(kingdom = raw_kingdom)
-```
-
-### references
-
-```{r}
-taxon %<>% rename(references = raw_reference)
-```
- 
 ## Post-processing
 
-Remove the original columns:
+Only keep the Darwin Core columns:
 
 ```{r}
-taxon %<>% select(-starts_with("raw_"))
+taxon %<>% select(starts_with("dwc_"))
 ```
 
-# Sort on `taxonID`:
+Drop the `dwc_` prefix:
+
+```{r}
+colnames(taxon) <- str_replace(colnames(taxon), "dwc_", "")
+```
+
+Sort on `taxonID` (to maintain some consistency between updates of the dataset):
 
 ```{r}
 taxon %<>% arrange(taxonID)
 ```
 
-
-###Request Species Information
-```{r warning=FALSE}
-taxon%<>%
-   gbif_species_name_match(name_col = "scientificName", 
-                           gbif_terms= c('usageKey', 'scientificName', 'rank', 
-                                         'order','matchType', 'phylum', 'kingdom',
-                                         'genus','class','confidence',  'synonym',
-                                         'status','family')) 
-
-
-```
-### remove obsolete columns
+Preview data:
 
 ```{r}
-taxon %<>% select(-c(confidence, synonym, matchType, usageKey, rank)) 
-            
+taxon %>% head()
 ```
-
 
 Save to CSV:
 
 ```{r}
-
-write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "" )
+write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "")
 ```
 
+# Distribution extension
 
-# Create distribution extension
+## Pre-processing
 
 ```{r start_distribution}
-distribution <- raw_data
+distribution <- input_data
 ```
 
 ## Term mapping
 
 Map the data to [Species Distribution](http://rs.gbif.org/extension/gbif/1.0/distribution.xml).
 
-###taxonID
+### taxonID
+
 ```{r}
-distribution %<>% rename(taxonID = raw_unique_id)
+distribution %<>% mutate(dwc_taxonID = unique_id)
+```
+
+### locationID
+
+```{r}
+distribution %<>% mutate(dwc_locationID = "ISO_3166-2:BE-VLG")
 ```
 
 ### locality
 
 ```{r}
-distribution %<>% mutate(locality = "Flanders")
+distribution %<>% mutate(dwc_locality = "Flanders")
 ```
 
-###occurrenceStatus
+### countryCode
 
 ```{r}
-distribution %<>% mutate(occurrenceStatus = "present")
+distribution %<>% mutate(dwc_countryCode = "BE")
 ```
 
+### occurrenceStatus
 
-###countryCode
+Set to `absent` for regionally extent species, otherwise `present`:
 
 ```{r}
-distribution %<>% mutate(countryCode = "BE")
+distribution %<>% mutate(dwc_occurrenceStatus = recode(rlc, 
+  "RE" = "absent",
+  .default = "present",
+  .missing = "present"
+))
 ```
 
+### threatStatus
 
-###locationID
+There are two red list category columns:
 
 ```{r}
-distribution%<>% mutate(locationID = "ISO_3166-2:BE-VLG")
-  
+distribution %>%
+  group_by(rlc, rlc_as_published) %>%
+  count()
 ```
 
-### treadStatus
+These will be mapped as follows:
 
+- `rlc` → `threatStatus`: IUCN equivalent of Flemish status and according to [expected vocabulary](http://rs.gbif.org/vocabulary/iucn/threat_status.xml).
+- `rlc_as_published` → `occurrenceRemarks`: Flemish status as originally published in red list. Not according to vocabulary, but important include.
 
 ```{r}
-
-distribution %<>%
- mutate(threadStatus = recode (raw_rlc_as_published
-      , "Geografisch beperkt" = "Geographically Limited (NT)"
-      , "Endangered (EN), maar niet gekend in welke mate" = "Endangered (EN), but not known to what extent"
-      , "Near Threatened (NT) (vrij zeldzaam)"="Near Threatened (NT) (quite rare)"
-      , "Near Threatened (NT) (zeer zeldzaam)"="Near Threatened (NT) (very rare)"
-      , "Near Threatened (NT) (zeldzaam)"="Near Threatened (NT) (rare)"
-      , "Niet bedreigd" = "Least Concern (LC)"
-      , "Least concern"="Least Concern (LC)"
-      , "Sterk bedreigd"="Critically Endangered (EN)"
-      , "Vulnerable" = "Vulnerable (VU)"
-      , "Verdwenen"= "Disappeared (RE)"
-      , "Waarschijnlijk bedreigd"="Probably Endangered (NT)"
-      , "Vermoedelijk bedreigd"="Presumably Threatened (DD/PT)"
-      , "Vatbaar voor bedreiging"="Vulnerable to threat (NT)"
-      , "Critically endangered"="Critically Endangered (CR)"
-      , "Critically Endangered"="Critically Endangered (CR)"
-      , "Endangered"= "Endangered (EN)"
-      , "Regionally extinct"="Regionally extinct (RE)"
-      , "Disappeared"="Disapeared (RE)"
-      , "Near threatened"="Near Threatened (NT)"
-      , "Probably Endangered"="Probably Endangered (DD/PT)"
-      , "Geographically Limited"="Geographically Limited (NT)" 
-      , "Bedreigd"="Endangered (EN)" 
-      , "Kwetsbaar"= "Vulnerable (VU)"
-      , "Ernstig bedreigd"="Critically Endangered (CR)"
-      , "Momenteel niet bedreigd"="Least Concern (LC)"
-      , "Momenteel niet in gevaar"="Least Concern (LC)"
-      , "Met uitsterven bedreigd"="Critically Endangered (CR)"
-      , "Bijna in gevaar"="Near Threatened (NT)"
-      , "Met uitsterven bedreigd"="Critically Endangered (CR)"
-      , "Zeldzaam"="Near Threatened (NT)"
-      , "Uitgestorven"="Regionally Extinct (REX)"
-      , "Achteruitgaand"="Near Threatened (NT)"
-      , "Onvoldoende gekend"="Data Deficient (DD)"
-      , "Onvoldoende data "= "Data Deficient (DD)"
-      , "Regionaal uitgestorven"="Regionally Extinct (EX)"
-      , "maar mate waarin ongekend"="uncertain rate"
-      , "in Vlaanderen"="in Flanders")) 
-  
+distribution %<>% mutate(dwc_threatStatus = rlc)
 ```
 
 ### establishmentMeans
 
 ```{r}
-distribution %<>% mutate(establishmentMeans = "native")
+distribution %<>% mutate(dwc_establishmentMeans = "native")
+```
+
+### eventDate
+
+```{r}
+distribution %<>% mutate(dwc_eventDate = year_published)
+```
+
+### source
+
+```{r}
+distribution %<>% mutate(dwc_source = reference)
 ```
 
 ### occurrenceRemarks
 
 ```{r}
-#distribution %<>% rename(occurrenceRemarks = raw_iucn_criteria)
-```
-
-### eventDate
-
-
-```{r}
-distribution %<>% rename(eventDate = raw_year_published)
-```
-
-
-### source
-
-```{r}
-distribution %<>% rename(source = raw_reference)
-```
-
-### Non DwC_terms
-
-```{r}
-head(distribution)
-
-```
-
-```{r}
-distribution %<>% 
-                  rename(redListCriteria = raw_rlc_iucn) %>%
-                  rename(criteria = raw_criteria) %>%
-                  rename(redListCriteriaEurope = raw_rlc_europe)
-                 
-                 
+distribution %<>% mutate(dwc_occurrenceRemarks = rlc_as_published)
 ```
 
 ## Post-processing
 
-Remove the original columns:
+Only keep the Darwin Core columns:
 
 ```{r}
-distribution %<>% select(-starts_with("raw_"))
+distribution %<>% select(starts_with("dwc_"))
+```
+
+Drop the `dwc_` prefix:
+
+```{r}
+colnames(distribution) <- str_replace(colnames(distribution), "dwc_", "")
 ```
 
 Sort on `taxonID`:
@@ -347,6 +409,11 @@ Sort on `taxonID`:
 distribution %<>% arrange(taxonID)
 ```
 
+Preview data:
+
+```{r}
+distribution %>% head()
+```
 
 Save to CSV:
 

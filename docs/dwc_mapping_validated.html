@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Dimitri Brosens" />
+<meta name="author" content="Peter Desmet" />
+<meta name="author" content="Lien Reyserhove" />
+<meta name="author" content="Dirk Maes" />
+
+<meta name="date" content="2019-02-19" />
+
+<title>Darwin Core mapping</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="static/css/custom.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">rl-flanders-checklist</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Darwin Core mapping
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="dwc_mapping_validated.html">Validated red lists</a>
+    </li>
+    <li>
+      <a href="dwc_mapping_unvalidated.html">Unvalidated red lists</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/inbo/rl-flanders-checklist">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Darwin Core mapping</h1>
+<h3 class="subtitle"><em>For: Validated red lists of Flanders, Belgium</em></h3>
+<h4 class="author"><em>Dimitri Brosens</em></h4>
+<h4 class="author"><em>Peter Desmet</em></h4>
+<h4 class="author"><em>Lien Reyserhove</em></h4>
+<h4 class="author"><em>Dirk Maes</em></h4>
+<h4 class="date"><em>2019-02-19</em></h4>
+
+</div>
+
+
+<p>This document describes how we map the validated red list data for Flanders to Darwin Core. The source file for this document can be found <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_validated.Rmd">here</a>.</p>
+<div id="setup" class="section level1">
+<h1><span class="header-section-number">1</span> Setup</h1>
+<p>Load libraries:</p>
+<pre class="r"><code># devtools::install_github(c(&quot;tazinho/snakecase&quot;))
+
+library(tidyverse)      # To do data science
+library(magrittr)       # To use %&lt;&gt;% pipes
+library(here)           # To find files
+library(janitor)        # To clean input data
+library(digest)         # To generate hashes
+library(rgbif)          # To use GBIF services
+library(snakecase)      # To convert case of descriptions</code></pre>
+</div>
+<div id="read-source-data" class="section level1">
+<h1><span class="header-section-number">2</span> Read source data</h1>
+<p>Create a data frame <code>input_data</code> from the source data:</p>
+<pre class="r"><code>input_data &lt;- read_delim(here(&quot;data&quot;, &quot;raw&quot;, &quot;tblFlandersRedListsAll.tsv&quot;), delim = &quot;\t&quot;)</code></pre>
+<p>Filter on <strong>validated</strong> taxa:</p>
+<pre class="r"><code>input_data %&lt;&gt;% filter(Validated == &quot;Validated&quot;)</code></pre>
+<p>Number of records:</p>
+<pre class="r"><code>input_data %&gt;% nrow()</code></pre>
+<pre><code>## [1] 3063</code></pre>
+</div>
+<div id="process-source-data" class="section level1">
+<h1><span class="header-section-number">3</span> Process source data</h1>
+<div id="tidy-data" class="section level2">
+<h2><span class="header-section-number">3.1</span> Tidy data</h2>
+<p>Clean data somewhat:</p>
+<pre class="r"><code>input_data %&lt;&gt;%
+  remove_empty(&quot;rows&quot;) %&gt;%    # Remove empty rows
+  clean_names()               # Have sensible (lowercase) column names</code></pre>
+</div>
+<div id="scientific-names" class="section level2">
+<h2><span class="header-section-number">3.2</span> Scientific names</h2>
+<p>The scientific names contain trailing spaces:</p>
+<pre class="r"><code>input_data %&lt;&gt;% mutate(
+  speciesname_as_published = str_trim(speciesname_as_published),
+  speciesname_unique = str_trim(speciesname_unique)
+)</code></pre>
+</div>
+<div id="taxon-ranks" class="section level2">
+<h2><span class="header-section-number">3.3</span> Taxon ranks</h2>
+<p>Use the <a href="https://www.gbif.org/tools/name-parser">GBIF nameparser</a> to retrieve nomenclatural information for the scientific names in the checklist:</p>
+<pre class="r"><code>parsed_names &lt;- input_data %&gt;%
+  distinct(speciesname_as_published) %&gt;%
+  pull() %&gt;% # Create vector from dataframe
+  parsenames() # An rgbif function</code></pre>
+<p>The nameparser function also provides information about the rank of the taxon (in <code>rankmarker</code>). Here we join this information with our checklist. Cleaning these ranks will done in the Taxon Core mapping:</p>
+<pre class="r"><code>input_data %&lt;&gt;% left_join(
+  select(parsed_names, scientificname, rankmarker),
+  by = c(&quot;speciesname_as_published&quot; = &quot;scientificname&quot;))</code></pre>
+</div>
+<div id="preview-data" class="section level2">
+<h2><span class="header-section-number">3.4</span> Preview data</h2>
+<p>Show the number of taxa per kingdom and rank:</p>
+<pre class="r"><code>input_data %&gt;%
+  group_by(kingdom, rankmarker) %&gt;%
+  summarize(
+    `taxa` = n()
+  ) %&gt;%
+  adorn_totals(&quot;row&quot;)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"infrasp.","3":"8","_rn_":"1"},{"1":"Animalia","2":"sp.","3":"1384","_rn_":"2"},{"1":"Plantae","2":"NA","3":"2","_rn_":"3"},{"1":"Plantae","2":"infrasp.","3":"9","_rn_":"4"},{"1":"Plantae","2":"morph","3":"1","_rn_":"5"},{"1":"Plantae","2":"sp.","3":"1648","_rn_":"6"},{"1":"Plantae","2":"subsp.","3":"10","_rn_":"7"},{"1":"Plantae","2":"var.","3":"1","_rn_":"8"},{"1":"Total","2":"-","3":"3063","_rn_":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Preview data:</p>
+<pre class="r"><code>input_data %&gt;% head()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["unique_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["taxonomic_group"],"name":[2],"type":["chr"],"align":["left"]},{"label":["test"],"name":[3],"type":["chr"],"align":["left"]},{"label":["kingdom"],"name":[4],"type":["chr"],"align":["left"]},{"label":["phylum"],"name":[5],"type":["chr"],"align":["left"]},{"label":["class"],"name":[6],"type":["chr"],"align":["left"]},{"label":["order"],"name":[7],"type":["chr"],"align":["left"]},{"label":["family"],"name":[8],"type":["chr"],"align":["left"]},{"label":["genus"],"name":[9],"type":["chr"],"align":["left"]},{"label":["species"],"name":[10],"type":["chr"],"align":["left"]},{"label":["speciesname_as_published"],"name":[11],"type":["chr"],"align":["left"]},{"label":["speciesname_unique"],"name":[12],"type":["chr"],"align":["left"]},{"label":["speciesname_dutch"],"name":[13],"type":["chr"],"align":["left"]},{"label":["iucn_criteria"],"name":[14],"type":["chr"],"align":["left"]},{"label":["rlc_as_published"],"name":[15],"type":["chr"],"align":["left"]},{"label":["rlc"],"name":[16],"type":["chr"],"align":["left"]},{"label":["rlc_europe"],"name":[17],"type":["chr"],"align":["left"]},{"label":["criteria"],"name":[18],"type":["chr"],"align":["left"]},{"label":["validated"],"name":[19],"type":["chr"],"align":["left"]},{"label":["approved_by_minister"],"name":[20],"type":["chr"],"align":["left"]},{"label":["most_recent"],"name":[21],"type":["chr"],"align":["left"]},{"label":["year_published"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["biome"],"name":[23],"type":["chr"],"align":["left"]},{"label":["biotope1"],"name":[24],"type":["chr"],"align":["left"]},{"label":["biotope2"],"name":[25],"type":["chr"],"align":["left"]},{"label":["cuddliness"],"name":[26],"type":["chr"],"align":["left"]},{"label":["lifespan"],"name":[27],"type":["chr"],"align":["left"]},{"label":["mobility"],"name":[28],"type":["chr"],"align":["left"]},{"label":["nutrient_level"],"name":[29],"type":["chr"],"align":["left"]},{"label":["spine"],"name":[30],"type":["chr"],"align":["left"]},{"label":["reference"],"name":[31],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[32],"type":["chr"],"align":["left"]}],"data":[{"1":"INBO_RL_AMP_2013_VAL_1","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Alytidae","9":"Alytes","10":"obstetricans","11":"Alytes obstetricans","12":"Alytes obstetricans","13":"Vroedmeesterpad","14":"B2a(i)b(iii)c(iv);C2a(i)","15":"Bedreigd","16":"EN","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"StandingWaters","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Mesotrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"sp."},{"1":"INBO_RL_AMP_2013_VAL_10","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Ranidae","9":"Pelophylax","10":"kl. Esculentus","11":"Pelophylax kl. esculentus","12":"Pelophylax klepton esculentus","13":"Bastaardkikker","14":"NA","15":"Momenteel niet in gevaar","16":"LC","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"Eurytopic","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Eutrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"infrasp."},{"1":"INBO_RL_AMP_2013_VAL_11","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Ranidae","9":"Pelophylax","10":"lessonae","11":"Pelophylax lessonae","12":"Pelophylax lessonae","13":"Poelkikker","14":"A2c;B2a(i)b(ii,iii)","15":"Bijna in gevaar","16":"NT","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"StandingWaters","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Oligotrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"sp."},{"1":"INBO_RL_AMP_2013_VAL_12","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Ranidae","9":"Pelophylax","10":"ridibundus","11":"Pelophylax ridibundus","12":"Pelophylax ridibundus","13":"Europese meerkikker","14":"NA","15":"Momenteel niet in gevaar","16":"LC","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"StandingWaters","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Eutrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"sp."},{"1":"INBO_RL_AMP_2013_VAL_13","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Ranidae","9":"Rana","10":"arvalis","11":"Rana arvalis","12":"Rana arvalis","13":"Heikikker","14":"B2a(i)b(iii)","15":"Kwetsbaar","16":"VU","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"Heathlands","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Oligotrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"sp."},{"1":"INBO_RL_AMP_2013_VAL_14","2":"Amphibians","3":"okido","4":"Animalia","5":"Chordata","6":"Amphibia","7":"Anura","8":"Ranidae","9":"Rana","10":"temporaria","11":"Rana temporaria","12":"Rana temporaria","13":"Bruine kikker","14":"NA","15":"Momenteel niet in gevaar","16":"LC","17":"LC","18":"IUCN","19":"Validated","20":"ApprovedByMinister","21":"Yes","22":"2013","23":"Aquatic","24":"Eurytopic","25":"NA","26":"NonCuddly","27":"Longlived","28":"Sedentary","29":"Eutrophic","30":"Vertebrate","31":"Jooris_etal_2012","32":"sp."}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div id="taxon-core" class="section level1">
+<h1><span class="header-section-number">4</span> Taxon core</h1>
+<div id="pre-processing" class="section level2">
+<h2><span class="header-section-number">4.1</span> Pre-processing</h2>
+<pre class="r"><code>taxon &lt;- input_data</code></pre>
+</div>
+<div id="term-mapping" class="section level2">
+<h2><span class="header-section-number">4.2</span> Term mapping</h2>
+<p>Map the data to <a href="http://rs.gbif.org/core/dwc_taxon_2015-04-24.xml">Darwin Core Taxon</a>.</p>
+<div id="language" class="section level3">
+<h3><span class="header-section-number">4.2.1</span> language</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_language = &quot;en&quot;)</code></pre>
+</div>
+<div id="license" class="section level3">
+<h3><span class="header-section-number">4.2.2</span> license</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_license = &quot;http://creativecommons.org/publicdomain/zero/1.0/&quot;)</code></pre>
+</div>
+<div id="rightsholder" class="section level3">
+<h3><span class="header-section-number">4.2.3</span> rightsHolder</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_rightsHolder = &quot;INBO&quot;)</code></pre>
+</div>
+<div id="accessrights" class="section level3">
+<h3><span class="header-section-number">4.2.4</span> accessRights</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_accessRights = &quot;https://www.inbo.be/en/norms-data-use&quot;)</code></pre>
+</div>
+<div id="datasetid" class="section level3">
+<h3><span class="header-section-number">4.2.5</span> datasetID</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_datasetID = &quot;&quot;)</code></pre>
+</div>
+<div id="institutioncode" class="section level3">
+<h3><span class="header-section-number">4.2.6</span> institutionCode</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_institutionCode = &quot;INBO&quot;)</code></pre>
+</div>
+<div id="datasetname" class="section level3">
+<h3><span class="header-section-number">4.2.7</span> datasetName</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_datasetName = &quot;Validated Red Lists of Flanders, Belgium&quot;)</code></pre>
+</div>
+<div id="taxonid" class="section level3">
+<h3><span class="header-section-number">4.2.8</span> taxonID</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_taxonID = unique_id)</code></pre>
+</div>
+<div id="scientificname" class="section level3">
+<h3><span class="header-section-number">4.2.9</span> scientificName</h3>
+<p>Use the name as originally published on the checklist:</p>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_scientificName = speciesname_as_published)</code></pre>
+</div>
+<div id="kingdom" class="section level3">
+<h3><span class="header-section-number">4.2.10</span> kingdom</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_kingdom = kingdom)</code></pre>
+</div>
+<div id="phylum" class="section level3">
+<h3><span class="header-section-number">4.2.11</span> phylum</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_phylum = phylum)</code></pre>
+</div>
+<div id="class" class="section level3">
+<h3><span class="header-section-number">4.2.12</span> class</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_class = class)</code></pre>
+</div>
+<div id="order" class="section level3">
+<h3><span class="header-section-number">4.2.13</span> order</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_order = order)</code></pre>
+</div>
+<div id="family" class="section level3">
+<h3><span class="header-section-number">4.2.14</span> family</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_family = family)</code></pre>
+</div>
+<div id="genus" class="section level3">
+<h3><span class="header-section-number">4.2.15</span> genus</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_genus = genus)</code></pre>
+</div>
+<div id="taxonrank" class="section level3">
+<h3><span class="header-section-number">4.2.16</span> taxonRank</h3>
+<p>Inspect values:</p>
+<pre class="r"><code>taxon %&gt;%
+  group_by(rankmarker) %&gt;%
+  count()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"NA","2":"2"},{"1":"infrasp.","2":"17"},{"1":"morph","2":"1"},{"1":"sp.","2":"3032"},{"1":"subsp.","2":"10"},{"1":"var.","2":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Map values by recoding to the <a href="http://rs.gbif.org/vocabulary/gbif/rank_2015-04-24.xml">GBIF rank vocabulary</a>:</p>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_taxonRank = recode(rankmarker,
+  &quot;sp.&quot; = &quot;species&quot;,
+  &quot;infrasp.&quot; = &quot;infraspecificname&quot;,
+  &quot;subsp.&quot; = &quot;subspecies&quot;,
+  &quot;var.&quot; = &quot;variety&quot;,
+  .default = &quot;&quot;,
+  .missing = &quot;&quot;
+))</code></pre>
+<p>Inspect mapped values:</p>
+<pre class="r"><code>taxon %&gt;%
+  group_by(rankmarker, dwc_taxonRank) %&gt;%
+  count()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["dwc_taxonRank"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"NA","2":"","3":"2"},{"1":"infrasp.","2":"infraspecificname","3":"17"},{"1":"morph","2":"","3":"1"},{"1":"sp.","2":"species","3":"3032"},{"1":"subsp.","2":"subspecies","3":"10"},{"1":"var.","2":"variety","3":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="vernacularname" class="section level3">
+<h3><span class="header-section-number">4.2.17</span> vernacularName</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_vernacularName = speciesname_dutch)</code></pre>
+</div>
+<div id="nomenclaturalcode" class="section level3">
+<h3><span class="header-section-number">4.2.18</span> nomenclaturalCode</h3>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_nomenclaturalCode = case_when(
+  kingdom == &quot;Animalia&quot; ~ &quot;ICZN&quot;,
+  kingdom == &quot;Plantae&quot; ~ &quot;ICBN&quot;
+))</code></pre>
+</div>
+</div>
+<div id="post-processing" class="section level2">
+<h2><span class="header-section-number">4.3</span> Post-processing</h2>
+<p>Only keep the Darwin Core columns:</p>
+<pre class="r"><code>taxon %&lt;&gt;% select(starts_with(&quot;dwc_&quot;))</code></pre>
+<p>Drop the <code>dwc_</code> prefix:</p>
+<pre class="r"><code>colnames(taxon) &lt;- str_replace(colnames(taxon), &quot;dwc_&quot;, &quot;&quot;)</code></pre>
+<p>Sort on <code>taxonID</code> (to maintain some consistency between updates of the dataset):</p>
+<pre class="r"><code>taxon %&lt;&gt;% arrange(taxonID)</code></pre>
+<p>Preview data:</p>
+<pre class="r"><code>taxon %&gt;% head()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["language"],"name":[1],"type":["chr"],"align":["left"]},{"label":["license"],"name":[2],"type":["chr"],"align":["left"]},{"label":["rightsHolder"],"name":[3],"type":["chr"],"align":["left"]},{"label":["accessRights"],"name":[4],"type":["chr"],"align":["left"]},{"label":["datasetID"],"name":[5],"type":["chr"],"align":["left"]},{"label":["institutionCode"],"name":[6],"type":["chr"],"align":["left"]},{"label":["datasetName"],"name":[7],"type":["chr"],"align":["left"]},{"label":["taxonID"],"name":[8],"type":["chr"],"align":["left"]},{"label":["scientificName"],"name":[9],"type":["chr"],"align":["left"]},{"label":["kingdom"],"name":[10],"type":["chr"],"align":["left"]},{"label":["phylum"],"name":[11],"type":["chr"],"align":["left"]},{"label":["class"],"name":[12],"type":["chr"],"align":["left"]},{"label":["order"],"name":[13],"type":["chr"],"align":["left"]},{"label":["family"],"name":[14],"type":["chr"],"align":["left"]},{"label":["genus"],"name":[15],"type":["chr"],"align":["left"]},{"label":["taxonRank"],"name":[16],"type":["chr"],"align":["left"]},{"label":["vernacularName"],"name":[17],"type":["chr"],"align":["left"]},{"label":["nomenclaturalCode"],"name":[18],"type":["chr"],"align":["left"]}],"data":[{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_1","9":"Alytes obstetricans","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Alytidae","15":"Alytes","16":"species","17":"Vroedmeesterpad","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_10","9":"Pelophylax kl. esculentus","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Pelophylax","16":"infraspecificname","17":"Bastaardkikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_11","9":"Pelophylax lessonae","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Pelophylax","16":"species","17":"Poelkikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_12","9":"Pelophylax ridibundus","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Pelophylax","16":"species","17":"Europese meerkikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_13","9":"Rana arvalis","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Heikikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Validated Red Lists of Flanders, Belgium","8":"INBO_RL_AMP_2013_VAL_14","9":"Rana temporaria","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Bruine kikker","18":"ICZN"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Save to CSV:</p>
+<pre class="r"><code>write_csv(taxon, here(&quot;data&quot;, &quot;processed&quot;, &quot;validated&quot;, &quot;taxon.csv&quot;), na = &quot;&quot;)</code></pre>
+</div>
+</div>
+<div id="distribution-extension" class="section level1">
+<h1><span class="header-section-number">5</span> Distribution extension</h1>
+<div id="pre-processing-1" class="section level2">
+<h2><span class="header-section-number">5.1</span> Pre-processing</h2>
+<pre class="r"><code>distribution &lt;- input_data</code></pre>
+</div>
+<div id="term-mapping-1" class="section level2">
+<h2><span class="header-section-number">5.2</span> Term mapping</h2>
+<p>Map the data to <a href="http://rs.gbif.org/extension/gbif/1.0/distribution.xml">Species Distribution</a>.</p>
+<div id="taxonid-1" class="section level3">
+<h3><span class="header-section-number">5.2.1</span> taxonID</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_taxonID = unique_id)</code></pre>
+</div>
+<div id="locationid" class="section level3">
+<h3><span class="header-section-number">5.2.2</span> locationID</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_locationID = &quot;ISO_3166-2:BE-VLG&quot;)</code></pre>
+</div>
+<div id="locality" class="section level3">
+<h3><span class="header-section-number">5.2.3</span> locality</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_locality = &quot;Flanders&quot;)</code></pre>
+</div>
+<div id="countrycode" class="section level3">
+<h3><span class="header-section-number">5.2.4</span> countryCode</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_countryCode = &quot;BE&quot;)</code></pre>
+</div>
+<div id="occurrencestatus" class="section level3">
+<h3><span class="header-section-number">5.2.5</span> occurrenceStatus</h3>
+<p>Set to <code>absent</code> for regionally extent species, otherwise <code>present</code>:</p>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_occurrenceStatus = recode(rlc, 
+  &quot;RE&quot; = &quot;absent&quot;,
+  .default = &quot;present&quot;,
+  .missing = &quot;present&quot;
+))</code></pre>
+</div>
+<div id="threatstatus" class="section level3">
+<h3><span class="header-section-number">5.2.6</span> threatStatus</h3>
+<p>There are two red list category columns:</p>
+<pre class="r"><code>distribution %&gt;%
+  group_by(rlc, rlc_as_published) %&gt;%
+  count()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["rlc"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rlc_as_published"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"NA","2":"Niet van toepassing","3":"18"},{"1":"NA","2":"Niet-inheemse broedvogel","3":"13"},{"1":"CR","2":"Ernstig bedreigd","3":"103"},{"1":"CR","2":"Met uitsterven bedreigd","3":"60"},{"1":"CR","2":"Met verdwijning bedreigd","3":"108"},{"1":"DD","2":"Onvoldoende data","3":"16"},{"1":"DD","2":"Onvoldoende gekend","3":"25"},{"1":"DD","2":"Onvoldoende gekend","3":"11"},{"1":"DD","2":"Waarschijnlijk bedreigd","3":"5"},{"1":"EN","2":"Bedreigd","3":"200"},{"1":"EN","2":"Bedreigd","3":"34"},{"1":"LC","2":"Momenteel niet bedreigd","3":"896"},{"1":"LC","2":"Momenteel niet in gevaar","3":"424"},{"1":"NE","2":"Niet geëvalueerd","3":"107"},{"1":"NE","2":"Onregelmatige broedvogel","3":"36"},{"1":"NT","2":"Achteruitgaand","3":"35"},{"1":"NT","2":"Achteruitgaand","3":"2"},{"1":"NT","2":"Bijna in gevaar","3":"63"},{"1":"NT","2":"Zeldzaam","3":"233"},{"1":"NT","2":"Zeldzaam","3":"127"},{"1":"RE","2":"Regionaal uitgestorven","3":"69"},{"1":"RE","2":"Uitgestorven","3":"11"},{"1":"RE","2":"Uitgestorven","3":"36"},{"1":"RE","2":"Uitgestorven in Vlaanderen","3":"37"},{"1":"RE","2":"Verdwenen uit Vlaanderen en het Brussels Gewest","3":"56"},{"1":"VU","2":"Kwetsbaar","3":"306"},{"1":"VU","2":"Kwetsbaar","3":"32"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>This will be mapped as follows:</p>
+<ul>
+<li><code>rlc</code> → <code>threatStatus</code>: IUCN equivalent of Flemish status and according to <a href="http://rs.gbif.org/vocabulary/iucn/threat_status.xml">expected vocabulary</a>.</li>
+<li><code>rlc_as_published</code> → <code>occurrenceRemarks</code>: Flemish status as originally published in red list. Not according to vocabulary, but important include.</li>
+</ul>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_threatStatus = rlc)</code></pre>
+</div>
+<div id="establishmentmeans" class="section level3">
+<h3><span class="header-section-number">5.2.7</span> establishmentMeans</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_establishmentMeans = case_when(
+  rlc_as_published == &quot;Niet-inheemse broedvogel&quot; ~ &quot;introduced&quot;,
+  TRUE ~ &quot;native&quot;
+))</code></pre>
+</div>
+<div id="eventdate" class="section level3">
+<h3><span class="header-section-number">5.2.8</span> eventDate</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_eventDate = year_published)</code></pre>
+</div>
+<div id="source" class="section level3">
+<h3><span class="header-section-number">5.2.9</span> source</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_source = reference)</code></pre>
+</div>
+<div id="occurrenceremarks" class="section level3">
+<h3><span class="header-section-number">5.2.10</span> occurrenceRemarks</h3>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_occurrenceRemarks = rlc_as_published)</code></pre>
+</div>
+</div>
+<div id="post-processing-1" class="section level2">
+<h2><span class="header-section-number">5.3</span> Post-processing</h2>
+<p>Only keep the Darwin Core columns:</p>
+<pre class="r"><code>distribution %&lt;&gt;% select(starts_with(&quot;dwc_&quot;))</code></pre>
+<p>Drop the <code>dwc_</code> prefix:</p>
+<pre class="r"><code>colnames(distribution) &lt;- str_replace(colnames(distribution), &quot;dwc_&quot;, &quot;&quot;)</code></pre>
+<p>Sort on <code>taxonID</code>:</p>
+<pre class="r"><code>distribution %&lt;&gt;% arrange(taxonID)</code></pre>
+<p>Preview data:</p>
+<pre class="r"><code>distribution %&gt;% head()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["taxonID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["locationID"],"name":[2],"type":["chr"],"align":["left"]},{"label":["locality"],"name":[3],"type":["chr"],"align":["left"]},{"label":["countryCode"],"name":[4],"type":["chr"],"align":["left"]},{"label":["occurrenceStatus"],"name":[5],"type":["chr"],"align":["left"]},{"label":["threatStatus"],"name":[6],"type":["chr"],"align":["left"]},{"label":["establishmentMeans"],"name":[7],"type":["chr"],"align":["left"]},{"label":["eventDate"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["source"],"name":[9],"type":["chr"],"align":["left"]},{"label":["occurrenceRemarks"],"name":[10],"type":["chr"],"align":["left"]}],"data":[{"1":"INBO_RL_AMP_2013_VAL_1","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"EN","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Bedreigd"},{"1":"INBO_RL_AMP_2013_VAL_10","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Momenteel niet in gevaar"},{"1":"INBO_RL_AMP_2013_VAL_11","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"NT","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Bijna in gevaar"},{"1":"INBO_RL_AMP_2013_VAL_12","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Momenteel niet in gevaar"},{"1":"INBO_RL_AMP_2013_VAL_13","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"VU","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Kwetsbaar"},{"1":"INBO_RL_AMP_2013_VAL_14","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"2013","9":"Jooris_etal_2012","10":"Momenteel niet in gevaar"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Save to CSV:</p>
+<pre class="r"><code>write_csv(distribution, here(&quot;data&quot;, &quot;processed&quot;, &quot;validated&quot;, &quot;distribution.csv&quot;), na = &quot;&quot; )</code></pre>
+</div>
+</div>
+<div id="description-extension" class="section level1">
+<h1><span class="header-section-number">6</span> Description extension</h1>
+<div id="pre-processing-2" class="section level2">
+<h2><span class="header-section-number">6.1</span> Pre-processing</h2>
+<pre class="r"><code>description_ext &lt;- input_data</code></pre>
+<p>Gather description columns to rows:</p>
+<pre class="r"><code>description_ext %&lt;&gt;% gather(
+  key = type, value = description,
+  biome, biotope1, biotope2, lifespan, cuddliness, mobility, spine, nutrient_level,
+  na.rm = TRUE
+)</code></pre>
+<p>Rename <code>biotope1</code> and <code>biotope2</code> to <code>biotope</code>:</p>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(type = recode(type,
+  &quot;biotope1&quot; = &quot;biotope&quot;,
+  &quot;biotope2&quot; = &quot;biotope&quot;
+))</code></pre>
+<p>Inspect values:</p>
+<pre class="r"><code>description_ext %&gt;%
+  select(type, description) %&gt;%
+  group_by(type, description) %&gt;%
+  count()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["description"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"biome","2":"Aquatic","3":"284"},{"1":"biome","2":"Epiphytic","3":"64"},{"1":"biome","2":"Marine","3":"12"},{"1":"biome","2":"SemiAquatic","3":"138"},{"1":"biome","2":"Terrestrial","3":"2469"},{"1":"biotope","2":"Agriculture","3":"211"},{"1":"biotope","2":"Dunes","3":"153"},{"1":"biotope","2":"Eurytopic","3":"291"},{"1":"biotope","2":"Grasslands","3":"491"},{"1":"biotope","2":"Heathlands","3":"264"},{"1":"biotope","2":"Marine","3":"5"},{"1":"biotope","2":"Marshes","3":"403"},{"1":"biotope","2":"PioneerVegetations","3":"103"},{"1":"biotope","2":"RunningWaters","3":"101"},{"1":"biotope","2":"SaltMarshes","3":"90"},{"1":"biotope","2":"Shrubs","3":"206"},{"1":"biotope","2":"StandingWaters","3":"233"},{"1":"biotope","2":"Urban","3":"205"},{"1":"biotope","2":"Woodlands","3":"670"},{"1":"cuddliness","2":"Cuddly","3":"1660"},{"1":"cuddliness","2":"NonCuddly","3":"1262"},{"1":"lifespan","2":"Longlived","3":"1440"},{"1":"lifespan","2":"Shortlived","3":"1478"},{"1":"mobility","2":"Mobile","3":"2201"},{"1":"mobility","2":"Sedentary","3":"717"},{"1":"nutrient_level","2":"Eutrophic","3":"1004"},{"1":"nutrient_level","2":"Mesotrophic","3":"944"},{"1":"nutrient_level","2":"Oligotrophic","3":"970"},{"1":"spine","2":"Invertebrate","3":"797"},{"1":"spine","2":"Plant","3":"1671"},{"1":"spine","2":"Vertebrate","3":"595"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Convert descriptions from <code>CamelCase</code> to <code>lower case</code>:</p>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(
+  clean_description = str_to_lower(to_sentence_case(description)))</code></pre>
+<p>Inspect mapped values:</p>
+<pre class="r"><code>description_ext %&gt;%
+  group_by(description, clean_description) %&gt;%
+  count()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["description"],"name":[1],"type":["chr"],"align":["left"]},{"label":["clean_description"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Agriculture","2":"agriculture","3":"211"},{"1":"Aquatic","2":"aquatic","3":"284"},{"1":"Cuddly","2":"cuddly","3":"1660"},{"1":"Dunes","2":"dunes","3":"153"},{"1":"Epiphytic","2":"epiphytic","3":"64"},{"1":"Eurytopic","2":"eurytopic","3":"291"},{"1":"Eutrophic","2":"eutrophic","3":"1004"},{"1":"Grasslands","2":"grasslands","3":"491"},{"1":"Heathlands","2":"heathlands","3":"264"},{"1":"Invertebrate","2":"invertebrate","3":"797"},{"1":"Longlived","2":"longlived","3":"1440"},{"1":"Marine","2":"marine","3":"17"},{"1":"Marshes","2":"marshes","3":"403"},{"1":"Mesotrophic","2":"mesotrophic","3":"944"},{"1":"Mobile","2":"mobile","3":"2201"},{"1":"NonCuddly","2":"non cuddly","3":"1262"},{"1":"Oligotrophic","2":"oligotrophic","3":"970"},{"1":"PioneerVegetations","2":"pioneer vegetations","3":"103"},{"1":"Plant","2":"plant","3":"1671"},{"1":"RunningWaters","2":"running waters","3":"101"},{"1":"SaltMarshes","2":"salt marshes","3":"90"},{"1":"Sedentary","2":"sedentary","3":"717"},{"1":"SemiAquatic","2":"semi aquatic","3":"138"},{"1":"Shortlived","2":"shortlived","3":"1478"},{"1":"Shrubs","2":"shrubs","3":"206"},{"1":"StandingWaters","2":"standing waters","3":"233"},{"1":"Terrestrial","2":"terrestrial","3":"2469"},{"1":"Urban","2":"urban","3":"205"},{"1":"Vertebrate","2":"vertebrate","3":"595"},{"1":"Woodlands","2":"woodlands","3":"670"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="term-mapping-2" class="section level2">
+<h2><span class="header-section-number">6.2</span> Term mapping</h2>
+<p>Map the data to <a href="http://rs.gbif.org/extension/gbif/1.0/description.xml">Taxon Description</a>.</p>
+<div id="taxonid-2" class="section level3">
+<h3><span class="header-section-number">6.2.1</span> taxonID</h3>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(dwc_taxonID = unique_id)</code></pre>
+</div>
+<div id="description" class="section level3">
+<h3><span class="header-section-number">6.2.2</span> description</h3>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(dwc_description = clean_description)</code></pre>
+</div>
+<div id="type" class="section level3">
+<h3><span class="header-section-number">6.2.3</span> type</h3>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(dwc_type = case_when(
+  type == &quot;nutrient_level&quot; ~ &quot;nutrient level&quot;,
+  TRUE ~ type
+))</code></pre>
+</div>
+<div id="source-1" class="section level3">
+<h3><span class="header-section-number">6.2.4</span> source</h3>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(dwc_source = reference)</code></pre>
+</div>
+<div id="language-1" class="section level3">
+<h3><span class="header-section-number">6.2.5</span> language</h3>
+<pre class="r"><code>description_ext %&lt;&gt;% mutate(dwc_language = &quot;en&quot;)</code></pre>
+</div>
+</div>
+<div id="post-processing-2" class="section level2">
+<h2><span class="header-section-number">6.3</span> Post-processing</h2>
+<p>Only keep the Darwin Core columns:</p>
+<pre class="r"><code>description_ext %&lt;&gt;% select(starts_with(&quot;dwc_&quot;))</code></pre>
+<p>Drop the <code>dwc_</code> prefix:</p>
+<pre class="r"><code>colnames(description_ext) &lt;- str_replace(colnames(description_ext), &quot;dwc_&quot;, &quot;&quot;)</code></pre>
+<p>Sort on <code>taxonID</code>:</p>
+<pre class="r"><code>description_ext %&lt;&gt;% arrange(taxonID)</code></pre>
+<p>Preview data:</p>
+<pre class="r"><code>description_ext %&gt;% head()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["taxonID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["description"],"name":[2],"type":["chr"],"align":["left"]},{"label":["type"],"name":[3],"type":["chr"],"align":["left"]},{"label":["source"],"name":[4],"type":["chr"],"align":["left"]},{"label":["language"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"INBO_RL_AMP_2013_VAL_1","2":"aquatic","3":"biome","4":"Jooris_etal_2012","5":"en"},{"1":"INBO_RL_AMP_2013_VAL_1","2":"standing waters","3":"biotope","4":"Jooris_etal_2012","5":"en"},{"1":"INBO_RL_AMP_2013_VAL_1","2":"longlived","3":"lifespan","4":"Jooris_etal_2012","5":"en"},{"1":"INBO_RL_AMP_2013_VAL_1","2":"non cuddly","3":"cuddliness","4":"Jooris_etal_2012","5":"en"},{"1":"INBO_RL_AMP_2013_VAL_1","2":"sedentary","3":"mobility","4":"Jooris_etal_2012","5":"en"},{"1":"INBO_RL_AMP_2013_VAL_1","2":"vertebrate","3":"spine","4":"Jooris_etal_2012","5":"en"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Save to CSV:</p>
+<pre class="r"><code>write_csv(description_ext, here(&quot;data&quot;, &quot;processed&quot;, &quot;validated&quot;, &quot;description.csv&quot;), na = &quot;&quot; )</code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
