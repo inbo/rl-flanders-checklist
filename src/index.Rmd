@@ -24,7 +24,7 @@ sources <-
       "NonValidated" = "unvalidated",
       "Validated" = "validated",
     )) %>%
-    group_by(Validated, Reference) %>%
+    group_by(Validated, TaxonomicGroup, Reference) %>%
     summarize(
       `Taxa` = n()
     ) %>%
@@ -38,7 +38,7 @@ sources <-
 ```{r echo = FALSE}
 sources %>%
   filter(Validated == "validated") %>%
-  select(Reference, Taxa) %>%
+  select(TaxonomicGroup, Reference, Taxa) %>%
   adorn_totals("row")
 ```
 
@@ -47,6 +47,6 @@ sources %>%
 ```{r echo = FALSE}
 sources %>%
   filter(Validated == "unvalidated") %>%
-  select(Reference, Taxa) %>%
+  select(TaxonomicGroup, Reference, Taxa) %>%
   adorn_totals("row")
 ```
