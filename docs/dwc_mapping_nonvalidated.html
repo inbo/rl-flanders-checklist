@@ -419,7 +419,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Darwin Core mapping</h1>
-<h3 class="subtitle"><em>For: Unvalidated red lists of Flanders, Belgium</em></h3>
+<h3 class="subtitle"><em>For: Non-validated red lists of Flanders, Belgium</em></h3>
 <h4 class="author"><em>Dimitri Brosens</em></h4>
 <h4 class="author"><em>Peter Desmet</em></h4>
 <h4 class="author"><em>Lien Reyserhove</em></h4>
@@ -429,7 +429,7 @@ div.tocify {
 </div>
 
 
-<p>This document describes how we map the unvalidated red list data for Flanders to Darwin Core. The source file for this document can be found <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_unvalidated.Rmd">here</a>.</p>
+<p>This document describes how we map the non-validated red list data for Flanders to Darwin Core. The source file for this document can be found <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_nonvalidated.Rmd">here</a>.</p>
 <div id="setup" class="section level1">
 <h1><span class="header-section-number">1</span> Setup</h1>
 <p>Load libraries:</p>
@@ -446,7 +446,7 @@ library(rgbif)          # To use GBIF services</code></pre>
 <h1><span class="header-section-number">2</span> Read source data</h1>
 <p>Create a data frame <code>input_data</code> from the source data:</p>
 <pre class="r"><code>input_data &lt;- read_delim(here(&quot;data&quot;, &quot;raw&quot;, &quot;tblFlandersRedListsAll.tsv&quot;), delim = &quot;\t&quot;)</code></pre>
-<p>Filter on <strong>unvalidated</strong> taxa:</p>
+<p>Filter on <strong>NonValidated</strong> taxa:</p>
 <pre class="r"><code>input_data %&lt;&gt;% filter(Validated == &quot;NonValidated&quot;)</code></pre>
 <p>Number of records:</p>
 <pre class="r"><code>input_data %&gt;% nrow()</code></pre>
@@ -539,7 +539,7 @@ library(rgbif)          # To use GBIF services</code></pre>
 </div>
 <div id="datasetname" class="section level3">
 <h3><span class="header-section-number">4.2.7</span> datasetName</h3>
-<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_datasetName = &quot;Unvalidated red lists of Flanders, Belgium&quot;)</code></pre>
+<pre class="r"><code>taxon %&lt;&gt;% mutate(dwc_datasetName = &quot;Non-validated red lists of Flanders, Belgium&quot;)</code></pre>
 </div>
 <div id="taxonid" class="section level3">
 <h3><span class="header-section-number">4.2.8</span> taxonID</h3>
@@ -627,11 +627,11 @@ library(rgbif)          # To use GBIF services</code></pre>
 <pre class="r"><code>taxon %&gt;% head()</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["language"],"name":[1],"type":["chr"],"align":["left"]},{"label":["license"],"name":[2],"type":["chr"],"align":["left"]},{"label":["rightsHolder"],"name":[3],"type":["chr"],"align":["left"]},{"label":["accessRights"],"name":[4],"type":["chr"],"align":["left"]},{"label":["datasetID"],"name":[5],"type":["chr"],"align":["left"]},{"label":["institutionCode"],"name":[6],"type":["chr"],"align":["left"]},{"label":["datasetName"],"name":[7],"type":["chr"],"align":["left"]},{"label":["taxonID"],"name":[8],"type":["chr"],"align":["left"]},{"label":["scientificName"],"name":[9],"type":["chr"],"align":["left"]},{"label":["kingdom"],"name":[10],"type":["chr"],"align":["left"]},{"label":["phylum"],"name":[11],"type":["chr"],"align":["left"]},{"label":["class"],"name":[12],"type":["chr"],"align":["left"]},{"label":["order"],"name":[13],"type":["chr"],"align":["left"]},{"label":["family"],"name":[14],"type":["chr"],"align":["left"]},{"label":["genus"],"name":[15],"type":["chr"],"align":["left"]},{"label":["taxonRank"],"name":[16],"type":["chr"],"align":["left"]},{"label":["vernacularName"],"name":[17],"type":["chr"],"align":["left"]},{"label":["nomenclaturalCode"],"name":[18],"type":["chr"],"align":["left"]}],"data":[{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_1","9":"Alytes obstetricans","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Alytidae","15":"Alytes","16":"species","17":"Vroedmeesterpad","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_10","9":"Rana arvalis","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Heikikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_11","9":"Rana esculenta synklepton","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"infraspecificname","17":"Groene kikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_12","9":"Rana temporaria","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Bruine kikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_13","9":"Salamandra salamandra","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Caudata","14":"Salamandridae","15":"Salamandra","16":"species","17":"Vuursalamander","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Unvalidated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_14","9":"Triturus cristatus","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Caudata","14":"Salamandridae","15":"Triturus","16":"species","17":"Kamsalamander","18":"ICZN"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["language"],"name":[1],"type":["chr"],"align":["left"]},{"label":["license"],"name":[2],"type":["chr"],"align":["left"]},{"label":["rightsHolder"],"name":[3],"type":["chr"],"align":["left"]},{"label":["accessRights"],"name":[4],"type":["chr"],"align":["left"]},{"label":["datasetID"],"name":[5],"type":["chr"],"align":["left"]},{"label":["institutionCode"],"name":[6],"type":["chr"],"align":["left"]},{"label":["datasetName"],"name":[7],"type":["chr"],"align":["left"]},{"label":["taxonID"],"name":[8],"type":["chr"],"align":["left"]},{"label":["scientificName"],"name":[9],"type":["chr"],"align":["left"]},{"label":["kingdom"],"name":[10],"type":["chr"],"align":["left"]},{"label":["phylum"],"name":[11],"type":["chr"],"align":["left"]},{"label":["class"],"name":[12],"type":["chr"],"align":["left"]},{"label":["order"],"name":[13],"type":["chr"],"align":["left"]},{"label":["family"],"name":[14],"type":["chr"],"align":["left"]},{"label":["genus"],"name":[15],"type":["chr"],"align":["left"]},{"label":["taxonRank"],"name":[16],"type":["chr"],"align":["left"]},{"label":["vernacularName"],"name":[17],"type":["chr"],"align":["left"]},{"label":["nomenclaturalCode"],"name":[18],"type":["chr"],"align":["left"]}],"data":[{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_1","9":"Alytes obstetricans","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Alytidae","15":"Alytes","16":"species","17":"Vroedmeesterpad","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_10","9":"Rana arvalis","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Heikikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_11","9":"Rana esculenta synklepton","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"infraspecificname","17":"Groene kikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_12","9":"Rana temporaria","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Anura","14":"Ranidae","15":"Rana","16":"species","17":"Bruine kikker","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_13","9":"Salamandra salamandra","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Caudata","14":"Salamandridae","15":"Salamandra","16":"species","17":"Vuursalamander","18":"ICZN"},{"1":"en","2":"http://creativecommons.org/publicdomain/zero/1.0/","3":"INBO","4":"https://www.inbo.be/en/norms-data-use","5":"","6":"INBO","7":"Non-validated red lists of Flanders, Belgium","8":"INBO_RL_AMP_1996_NONVAL_14","9":"Triturus cristatus","10":"Animalia","11":"Chordata","12":"Amphibia","13":"Caudata","14":"Salamandridae","15":"Triturus","16":"species","17":"Kamsalamander","18":"ICZN"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Save to CSV:</p>
-<pre class="r"><code>write_csv(taxon, here(&quot;data&quot;, &quot;processed&quot;, &quot;unvalidated&quot;, &quot;taxon.csv&quot;), na = &quot;&quot;)</code></pre>
+<pre class="r"><code>write_csv(taxon, here(&quot;data&quot;, &quot;processed&quot;, &quot;nonvalidated&quot;, &quot;taxon.csv&quot;), na = &quot;&quot;)</code></pre>
 </div>
 </div>
 <div id="distribution-extension" class="section level1">
@@ -719,7 +719,7 @@ library(rgbif)          # To use GBIF services</code></pre>
   </script>
 </div>
 <p>Save to CSV:</p>
-<pre class="r"><code>write_csv(distribution, here(&quot;data&quot;, &quot;processed&quot;, &quot;unvalidated&quot;, &quot;distribution.csv&quot;), na = &quot;&quot; )</code></pre>
+<pre class="r"><code>write_csv(distribution, here(&quot;data&quot;, &quot;processed&quot;, &quot;nonvalidated&quot;, &quot;distribution.csv&quot;), na = &quot;&quot; )</code></pre>
 </div>
 </div>
 

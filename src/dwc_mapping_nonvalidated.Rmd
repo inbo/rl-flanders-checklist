@@ -1,6 +1,6 @@
 ---
 title: "Darwin Core mapping"
-subtitle: "For: Unvalidated red lists of Flanders, Belgium"
+subtitle: "For: Non-validated red lists of Flanders, Belgium"
 author:
 - Dimitri Brosens
 - Peter Desmet
@@ -16,7 +16,7 @@ output:
     toc_float: true
 ---
 
-This document describes how we map the unvalidated red list data for Flanders to Darwin Core. The source file for this document can be found [here](https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_unvalidated.Rmd).
+This document describes how we map the non-validated red list data for Flanders to Darwin Core. The source file for this document can be found [here](https://github.com/inbo/rl-flanders-checklist/blob/master/src/dwc_mapping_nonvalidated.Rmd).
 
 # Setup
 
@@ -45,7 +45,7 @@ Create a data frame `input_data` from the source data:
 input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-Filter on **unvalidated** taxa:
+Filter on **NonValidated** taxa:
 
 ```{r}
 input_data %<>% filter(Validated == "NonValidated")
@@ -169,7 +169,7 @@ taxon %<>% mutate(dwc_institutionCode = "INBO")
 ### datasetName
 
 ```{r}
-taxon %<>% mutate(dwc_datasetName = "Unvalidated red lists of Flanders, Belgium")
+taxon %<>% mutate(dwc_datasetName = "Non-validated red lists of Flanders, Belgium")
 ```
 
 ### taxonID
@@ -295,7 +295,7 @@ taxon %>% head()
 Save to CSV:
 
 ```{r}
-write_csv(taxon, here("data", "processed", "unvalidated", "taxon.csv"), na = "")
+write_csv(taxon, here("data", "processed", "nonvalidated", "taxon.csv"), na = "")
 ```
 
 # Distribution extension
@@ -418,5 +418,5 @@ distribution %>% head()
 Save to CSV:
 
 ```{r}
-write_csv(distribution, here("data", "processed", "unvalidated", "distribution.csv"), na = "" )
+write_csv(distribution, here("data", "processed", "nonvalidated", "distribution.csv"), na = "" )
 ```

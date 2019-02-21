@@ -46,7 +46,7 @@ Create a data frame `input_data` from the source data:
 input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
-Filter on **validated** taxa:
+Filter on **Validated** taxa:
 
 ```{r}
 input_data %<>% filter(Validated == "Validated")

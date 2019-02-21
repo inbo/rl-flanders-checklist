@@ -2,7 +2,7 @@
 
 ## Rationale
 
-This repository contains the functionality to standardize two checklists - the _Validated red lists of Flanders, Belgium_  and the _Unvalidated red lists of Flanders, Belgium_ - to [Darwin Core checklists](https://www.gbif.org/dataset-classes) that can be harvested by [GBIF](http://www.gbif.org). The repository also contains some miscellaneous scripts.
+This repository contains the functionality to standardize two checklists - the _Validated red lists of Flanders, Belgium_  and the _Non-validated red lists of Flanders, Belgium_ - to [Darwin Core checklists](https://www.gbif.org/dataset-classes) that can be harvested by [GBIF](http://www.gbif.org). The repository also contains some miscellaneous scripts.
 
 ## Workflow
 
@@ -12,7 +12,7 @@ The source data is an Access database managed by [Dirk Maes](https://orcid.org/0
 
     [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/validated)
 
-* **Unvalidated red lists**: Contains information from red lists that were _not_ developed using the IUCN protocol.
+* **Non-validated red lists**: Contains information from red lists that were _not_ developed using the IUCN protocol.
 
     [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access, same file) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated)
 
@@ -23,8 +23,8 @@ The source data is an Access database managed by [Dirk Maes](https://orcid.org/0
 
 ---
 
-* [Unvalidated red list on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist)
-* [Unvalidated red lists on GBIF]()
+* [Non-validated red list on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist)
+* [Non-validated red lists on GBIF]()
 
 ## Repo structure
 

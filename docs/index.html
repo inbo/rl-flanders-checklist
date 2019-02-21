@@ -323,7 +323,7 @@ $(document).ready(function () {
 <h1>Red lists of Flanders, Belgium</h1>
 <div id="rationale" class="section level2">
 <h2>Rationale</h2>
-<p>This repository contains the functionality to standardize two checklists - the <em>Validated red lists of Flanders, Belgium</em> and the <em>Unvalidated red lists of Flanders, Belgium</em> - to <a href="https://www.gbif.org/dataset-classes">Darwin Core checklists</a> that can be harvested by <a href="http://www.gbif.org">GBIF</a>. The repository also contains some miscellaneous scripts.</p>
+<p>This repository contains the functionality to standardize two checklists - the <em>Validated red lists of Flanders, Belgium</em> and the <em>Non-validated red lists of Flanders, Belgium</em> - to <a href="https://www.gbif.org/dataset-classes">Darwin Core checklists</a> that can be harvested by <a href="http://www.gbif.org">GBIF</a>. The repository also contains some miscellaneous scripts.</p>
 </div>
 <div id="workflow" class="section level2">
 <h2>Workflow</h2>
@@ -331,8 +331,8 @@ $(document).ready(function () {
 <ul>
 <li><p><strong>Validated red lists</strong>: Contains information from red lists that were developed using the IUCN protocol. The database contains species properties for these (<code>biome</code>, <code>biotope</code>, <code>cuddliness</code>, <code>lifespan</code>, <code>mobility</code>, <code>nutrient level</code>, <code>spine</code>) which has been included in the Description extension.</p>
 <p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/validated">Darwin Core files</a></p></li>
-<li><p><strong>Unvalidated red lists</strong>: Contains information from red lists that were <em>not</em> developed using the IUCN protocol.</p>
-<p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access, same file) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_unvalidated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/unprocessed/validated">Darwin Core files</a></p></li>
+<li><p><strong>Non-validated red lists</strong>: Contains information from red lists that were <em>not</em> developed using the IUCN protocol.</p>
+<p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access, same file) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated">Darwin Core files</a></p></li>
 </ul>
 </div>
 <div id="published-dataset" class="section level2">
@@ -343,8 +343,8 @@ $(document).ready(function () {
 </ul>
 <hr />
 <ul>
-<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist">Unvalidated red list on the IPT</a></li>
-<li><a href="">Unvalidated red lists on GBIF</a></li>
+<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist">Non-validated red list on the IPT</a></li>
+<li><a href="">Non-validated red lists on GBIF</a></li>
 </ul>
 </div>
 <div id="repo-structure" class="section level2">
@@ -359,13 +359,13 @@ $(document).ready(function () {
 │   ├── raw                : Source data, input for mapping scripts 1 and 2
 │   └── processed
 │       ├── validated      : Darwin Core output of mapping script 1 GENERATED
-│       └── unvalidated    : Darwin Core output of mapping script 2 GENERATED
+│       └── nonvalidated   : Darwin Core output of mapping script 2 GENERATED
 │
 ├── docs                   : Repository website GENERATED
 │
 └── src
     ├── dwc_mapping_validated.Rmd : Darwin Core mapping script 1 (for validated red lists)
-    ├── dwc_mapping_unvalidated.Rmd : Darwin Core mapping script 2 (for unvalidated red lists)
+    ├── dwc_mapping_nonvalidated.Rmd : Darwin Core mapping script 2 (for non-validated red lists)
     ├── _site.yml          : Settings to build website in docs/
     └── index.Rmd          : Template for website homepage</code></pre>
 </div>
@@ -374,7 +374,7 @@ $(document).ready(function () {
 <ol style="list-style-type: decimal">
 <li>Clone this repository to your computer</li>
 <li>Open the RStudio project file</li>
-<li>Open the <code>dwc_mapping_validated.Rmd</code> or <code>dwc_mapping_unvalidated.Rmd</code> <a href="https://rmarkdown.rstudio.com/">R Markdown file</a> in RStudio</li>
+<li>Open the <code>dwc_mapping_validated.Rmd</code> or <code>dwc_mapping_nonvalidated.Rmd</code> <a href="https://rmarkdown.rstudio.com/">R Markdown file</a> in RStudio</li>
 <li>Install any required packages</li>
 <li>Click <code>Run &gt; Run All</code> to generate the processed data</li>
 <li>Alternatively, click <code>Build &gt; Build website</code> to generate the processed data and build the website in <code>docs/</code></li>
@@ -390,16 +390,16 @@ $(document).ready(function () {
 </div>
 <div id="source-red-lists" class="section level2">
 <h2>Source red lists</h2>
-<div id="validated" class="section level3">
-<h3>Validated</h3>
+<div id="validated-red-lists" class="section level3">
+<h3>Validated red lists</h3>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TaxonomicGroup"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Reference"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Amphibians","2":"Jooris_etal_2012","3":"16","_rn_":"1"},{"1":"BreedingBirds","2":"Devos_etal_2004","3":"211","_rn_":"2"},{"1":"BreedingBirds","2":"Devos_etal_2016","3":"217","_rn_":"3"},{"1":"Butterflies","2":"Maes_etal_2011","3":"70","_rn_":"4"},{"1":"Butterflies","2":"Maes_VanDyck_1999","3":"68","_rn_":"5"},{"1":"CarabidBeetles","2":"Desender_etal_2008","3":"382","_rn_":"6"},{"1":"Dragonflies","2":"DeKnijf_2006","3":"66","_rn_":"7"},{"1":"FreshwaterFishes","2":"Verreycken_etal_2014","3":"42","_rn_":"8"},{"1":"Grasshoppers","2":"Decleer_etal_2000","3":"39","_rn_":"9"},{"1":"Grasshoppers","2":"Maes_etal_2017","3":"52","_rn_":"10"},{"1":"Hornworts","2":"VanLanduytDeBeer_2017","3":"4","_rn_":"11"},{"1":"Ladybirds","2":"Adriaens_etal_2015","3":"39","_rn_":"12"},{"1":"Liverworts","2":"VanLanduytDeBeer_2017","3":"114","_rn_":"13"},{"1":"Mammals","2":"Maes_etal_2014","3":"103","_rn_":"14"},{"1":"Mosses","2":"VanLanduytDeBeer_2017","3":"399","_rn_":"15"},{"1":"Reptiles","2":"Jooris_etal_2012","3":"6","_rn_":"16"},{"1":"SaproxylicBeetles","2":"Thomaes_etal_2015","3":"19","_rn_":"17"},{"1":"VascularPlants","2":"VanLanduyt_etal_2006","3":"1154","_rn_":"18"},{"1":"Waterbugs","2":"Lock_etal_2013","3":"62","_rn_":"19"},{"1":"Total","2":"-","3":"3063","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div id="unvalidated" class="section level3">
-<h3>Unvalidated</h3>
+<div id="non-validated-red-lists" class="section level3">
+<h3>Non-validated red lists</h3>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TaxonomicGroup"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Reference"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Amphibians","2":"BauwensClaus_1996","3":"14","_rn_":"1"},{"1":"Ants","2":"Dekoninck_etal_2003","3":"55","_rn_":"2"},{"1":"BreedingBirds","2":"DevosAnselin_1999","3":"71","_rn_":"3"},{"1":"CarabidBeetles","2":"Desender_etal_1995","3":"368","_rn_":"4"},{"1":"DolichopodidFlies","2":"Pollet_2000","3":"260","_rn_":"5"},{"1":"Dragonflies","2":"DeKnijfAnselin_1996","3":"58","_rn_":"6"},{"1":"EmpididFlies","2":"Grootaert_etal_2001","3":"259","_rn_":"7"},{"1":"FreshwaterFishes","2":"VandelannooteCoeck_1998","3":"55","_rn_":"8"},{"1":"Grasshoppers","2":"Lock_etal_2011","3":"45","_rn_":"9"},{"1":"Hoverflies","2":"MeerhaegheGrootaert_1998","3":"265","_rn_":"10"},{"1":"Macrofungi","2":"WalleynVerbeken_1999","3":"552","_rn_":"11"},{"1":"Mammals","2":"Criel_1994","3":"69","_rn_":"12"},{"1":"Molluscs","2":"VanLoen_etal_2006","3":"120","_rn_":"13"},{"1":"Reptiles","2":"BauwensClaus_1996","3":"5","_rn_":"14"},{"1":"Spiders","2":"Maelfait_etal_1998","3":"604","_rn_":"15"},{"1":"Waterbeetles","2":"Bosmans_1994","3":"139","_rn_":"16"},{"1":"Waterbeetles","2":"Scheers (2012)","3":"106","_rn_":"17"},{"1":"Waterbugs","2":"Bonte_etal_2001","3":"58","_rn_":"18"},{"1":"Waterbugs","2":"Bosmans_1994","3":"58","_rn_":"19"},{"1":"Total","2":"-","3":"3161","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}

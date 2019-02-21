@@ -447,7 +447,7 @@ library(snakecase)      # To convert case of descriptions</code></pre>
 <h1><span class="header-section-number">2</span> Read source data</h1>
 <p>Create a data frame <code>input_data</code> from the source data:</p>
 <pre class="r"><code>input_data &lt;- read_delim(here(&quot;data&quot;, &quot;raw&quot;, &quot;tblFlandersRedListsAll.tsv&quot;), delim = &quot;\t&quot;)</code></pre>
-<p>Filter on <strong>validated</strong> taxa:</p>
+<p>Filter on <strong>Validated</strong> taxa:</p>
 <pre class="r"><code>input_data %&lt;&gt;% filter(Validated == &quot;Validated&quot;)</code></pre>
 <p>Number of records:</p>
 <pre class="r"><code>input_data %&gt;% nrow()</code></pre>

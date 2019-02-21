@@ -21,7 +21,7 @@ input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), deli
 sources <-
   input_data %>%
     mutate(Validated = recode(Validated,
-      "NonValidated" = "unvalidated",
+      "NonValidated" = "non-validated",
       "Validated" = "validated",
     )) %>%
     group_by(Validated, TaxonomicGroup, Reference) %>%
@@ -33,7 +33,7 @@ sources <-
 
 ## Source red lists
 
-### Validated
+### Validated red lists
 
 ```{r echo = FALSE}
 sources %>%
@@ -42,11 +42,11 @@ sources %>%
   adorn_totals("row")
 ```
 
-### Unvalidated
+### Non-validated red lists
 
 ```{r echo = FALSE}
 sources %>%
-  filter(Validated == "unvalidated") %>%
+  filter(Validated == "non-validated") %>%
   select(TaxonomicGroup, Reference, Taxa) %>%
   adorn_totals("row")
 ```
