@@ -14,7 +14,7 @@ The source data is an Access database managed by [Dirk Maes](https://orcid.org/0
 
 * **Unvalidated red lists**: Contains information from red lists that were _not_ developed using the IUCN protocol.
 
-    [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access, same file) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_unvalidated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/unprocessed/validated)
+    [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access, same file) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated)
 
 ## Published dataset
 
@@ -40,13 +40,13 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 │   ├── raw                : Source data, input for mapping scripts 1 and 2
 │   └── processed
 │       ├── validated      : Darwin Core output of mapping script 1 GENERATED
-│       └── unvalidated    : Darwin Core output of mapping script 2 GENERATED
+│       └── nonvalidated   : Darwin Core output of mapping script 2 GENERATED
 │
 ├── docs                   : Repository website GENERATED
 │
 └── src
     ├── dwc_mapping_validated.Rmd : Darwin Core mapping script 1 (for validated red lists)
-    ├── dwc_mapping_unvalidated.Rmd : Darwin Core mapping script 2 (for unvalidated red lists)
+    ├── dwc_mapping_nonvalidated.Rmd : Darwin Core mapping script 2 (for non-validated red lists)
     ├── _site.yml          : Settings to build website in docs/
     └── index.Rmd          : Template for website homepage
 ```
@@ -55,7 +55,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 
 1. Clone this repository to your computer
 2. Open the RStudio project file
-3. Open the `dwc_mapping_validated.Rmd` or `dwc_mapping_unvalidated.Rmd` [R Markdown file](https://rmarkdown.rstudio.com/) in RStudio
+3. Open the `dwc_mapping_validated.Rmd` or `dwc_mapping_nonvalidated.Rmd` [R Markdown file](https://rmarkdown.rstudio.com/) in RStudio
 4. Install any required packages
 5. Click `Run > Run All` to generate the processed data
 6. Alternatively, click `Build > Build website` to generate the processed data and build the website in `docs/`
