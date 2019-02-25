@@ -62,7 +62,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 
 ## Contributors
 
-[List of contributors](https://inbo/rl-flanders-checklist/contributors)
+[List of contributors](https://github.com/inbo/rl-flanders-checklist/contributors)
 
 ## License
 
