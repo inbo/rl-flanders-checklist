@@ -329,9 +329,9 @@ $(document).ready(function () {
 <h2>Workflow</h2>
 <p>The source data is an Access database managed by <a href="https://orcid.org/0000-0002-7947-3788">Dirk Maes</a> containing <strong>all published red lists for Flanders</strong> (<a href="https://inbo.github.io/rl-flanders-checklist/index.html">see included red lists</a>). A taxon can appear on multiple red lists. The data are split into two datasets, depending on the type of red list:</p>
 <ul>
-<li><p><strong>Validated red lists</strong>: Contains information from red lists that were developed using the IUCN protocol. The database contains species properties for these (<code>biome</code>, <code>biotope</code>, <code>cuddliness</code>, <code>lifespan</code>, <code>mobility</code>, <code>nutrient level</code>, <code>spine</code>) which has been included in the Description extension.</p>
+<li><p><strong>Validated red lists</strong>: Contains information from red lists that are considered validated, i.e. which used quantitative criteria and a representative sample of occurrences across all ecological regions in Flanders for red list assessment. The database also contains life-history traits for these (<code>biome</code>, <code>biotope</code>, <code>cuddliness</code>, <code>lifespan</code>, <code>mobility</code>, <code>nutrient level</code>, <code>spine</code>) which have been included in the description extension.</p>
 <p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/validated">Darwin Core files</a></p></li>
-<li><p><strong>Non-validated red lists</strong>: Contains information from red lists that were <em>not</em> developed using the IUCN protocol.</p>
+<li><p><strong>Non-validated red lists</strong>: Contains information from red lists that are considered non-validated, i.e. which did not use the above criteria.</p>
 <p><a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw">source data</a> (exported from Access, same file) → Darwin Core <a href="https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html">mapping script</a> → generated <a href="https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated">Darwin Core files</a></p></li>
 </ul>
 </div>
@@ -339,12 +339,12 @@ $(document).ready(function () {
 <h2>Published dataset</h2>
 <ul>
 <li><a href="https://ipt.inbo.be/resource?r=rl-flanders-validated-checklist">Validated red lists on the IPT</a></li>
-<li><a href="">Validated red lists on GBIF</a></li>
+<li><a href="https://doi.org/10.15468/8tk3tk">Validated red lists on GBIF</a></li>
 </ul>
 <hr />
 <ul>
-<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist">Non-validated red list on the IPT</a></li>
-<li><a href="">Non-validated red lists on GBIF</a></li>
+<li><a href="https://ipt.inbo.be/resource?r=rl-flanders-nonvalidated-checklist">Non-validated red list on the IPT</a></li>
+<li><a href="https://doi.org/10.15468/54nwog">Non-validated red lists on GBIF</a></li>
 </ul>
 </div>
 <div id="repo-structure" class="section level2">
