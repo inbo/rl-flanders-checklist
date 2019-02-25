@@ -397,7 +397,7 @@ div.tocify {
       <a href="dwc_mapping_validated.html">Validated red lists</a>
     </li>
     <li>
-      <a href="dwc_mapping_unvalidated.html">Unvalidated red lists</a>
+      <a href="dwc_mapping_nonvalidated.html">Non-validated red lists</a>
     </li>
   </ul>
 </li>
@@ -493,28 +493,16 @@ library(rgbif)          # To use GBIF services</code></pre>
 </div>
 <div id="preview-data" class="section level2">
 <h2><span class="header-section-number">3.5</span> Preview data</h2>
-<p>Show the number of taxa per kingdom and rank:</p>
-<pre class="r"><code>input_data %&gt;%
-  group_by(kingdom, rankmarker) %&gt;%
-  summarize(
-    `taxa` = n()
-  ) %&gt;%
-  adorn_totals(&quot;row&quot;)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"NA","3":"2","_rn_":"1"},{"1":"Animalia","2":"infrasp.","3":"37","_rn_":"2"},{"1":"Animalia","2":"sp.","3":"2569","_rn_":"3"},{"1":"Animalia","2":"var.","3":"1","_rn_":"4"},{"1":"Fungi","2":"infrasp.","3":"1","_rn_":"5"},{"1":"Fungi","2":"sp.","3":"551","_rn_":"6"},{"1":"Total","2":"-","3":"3161","_rn_":"7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
 <p>Show the number of taxa per red list and taxonomic group:</p>
-<pre class="r"><code>input_data %&gt;%
-  group_by(source_red_list, taxonomic_group) %&gt;%
-  summarize(
-    `taxa` = n()
-  ) %&gt;%
-  adorn_totals(&quot;row&quot;)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["source_red_list"],"name":[1],"type":["chr"],"align":["left"]},{"label":["taxonomic_group"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Bauwens and Claus (1996)","2":"Amphibians","3":"14","_rn_":"1"},{"1":"Bauwens and Claus (1996)","2":"Reptiles","3":"5","_rn_":"2"},{"1":"Bonte et al. (2001)","2":"Waterbugs","3":"58","_rn_":"3"},{"1":"Bosmans (1994)","2":"Waterbeetles","3":"139","_rn_":"4"},{"1":"Bosmans (1994)","2":"Waterbugs","3":"58","_rn_":"5"},{"1":"Criel (1994)","2":"Mammals","3":"69","_rn_":"6"},{"1":"De Knijf and Anselin (1996)","2":"Dragonflies","3":"58","_rn_":"7"},{"1":"Dekoninck et al. (2003)","2":"Ants","3":"55","_rn_":"8"},{"1":"Desender et al. (1995)","2":"CarabidBeetles","3":"368","_rn_":"9"},{"1":"Devos and Anselin (1999)","2":"BreedingBirds","3":"71","_rn_":"10"},{"1":"Grootaert et al. (2001)","2":"EmpididFlies","3":"259","_rn_":"11"},{"1":"Lock et al. (2011)","2":"Grasshoppers","3":"45","_rn_":"12"},{"1":"Maelfait et al. (1998)","2":"Spiders","3":"604","_rn_":"13"},{"1":"Meerhaeghe and Grootaert (1998)","2":"Hoverflies","3":"265","_rn_":"14"},{"1":"Pollet (2000)","2":"DolichopodidFlies","3":"260","_rn_":"15"},{"1":"Scheers (2012)","2":"Waterbeetles","3":"106","_rn_":"16"},{"1":"van Loen et al. (2006)","2":"Molluscs","3":"120","_rn_":"17"},{"1":"Vandelannoote and Coeck (1998)","2":"FreshwaterFishes","3":"55","_rn_":"18"},{"1":"Walleyn and Verbeken (1999)","2":"Macrofungi","3":"552","_rn_":"19"},{"1":"Total","2":"-","3":"3161","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Show the number of taxa per kingdom and rank:</p>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"NA","3":"2","_rn_":"1"},{"1":"Animalia","2":"infrasp.","3":"37","_rn_":"2"},{"1":"Animalia","2":"sp.","3":"2569","_rn_":"3"},{"1":"Animalia","2":"var.","3":"1","_rn_":"4"},{"1":"Fungi","2":"infrasp.","3":"1","_rn_":"5"},{"1":"Fungi","2":"sp.","3":"551","_rn_":"6"},{"1":"Total","2":"-","3":"3161","_rn_":"7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Preview data:</p>

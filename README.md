@@ -16,7 +16,7 @@ The source data is an Access database managed by [Dirk Maes](https://orcid.org/0
 
     [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access, same file) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated)
 
-## Published dataset
+## Published datasets
 
 * [Validated red lists on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-validated-checklist)
 * [Validated red lists on GBIF](https://doi.org/10.15468/8tk3tk)
@@ -62,7 +62,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 
 ## Contributors
 
-[List of contributors](https://inbo/rl-flanders-checklist/ad-hoc-checklist/contributors)
+[List of contributors](https://inbo/rl-flanders-checklist/contributors)
 
 ## License
 

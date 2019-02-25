@@ -397,7 +397,7 @@ div.tocify {
       <a href="dwc_mapping_validated.html">Validated red lists</a>
     </li>
     <li>
-      <a href="dwc_mapping_unvalidated.html">Unvalidated red lists</a>
+      <a href="dwc_mapping_nonvalidated.html">Non-validated red lists</a>
     </li>
   </ul>
 </li>
@@ -495,28 +495,16 @@ library(snakecase)      # To convert case of descriptions</code></pre>
 </div>
 <div id="preview-data" class="section level2">
 <h2><span class="header-section-number">3.5</span> Preview data</h2>
-<p>Show the number of taxa per kingdom and rank:</p>
-<pre class="r"><code>input_data %&gt;%
-  group_by(kingdom, rankmarker) %&gt;%
-  summarize(
-    `taxa` = n()
-  ) %&gt;%
-  adorn_totals(&quot;row&quot;)</code></pre>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"infrasp.","3":"8","_rn_":"1"},{"1":"Animalia","2":"sp.","3":"1384","_rn_":"2"},{"1":"Plantae","2":"NA","3":"2","_rn_":"3"},{"1":"Plantae","2":"infrasp.","3":"9","_rn_":"4"},{"1":"Plantae","2":"morph","3":"1","_rn_":"5"},{"1":"Plantae","2":"sp.","3":"1648","_rn_":"6"},{"1":"Plantae","2":"subsp.","3":"10","_rn_":"7"},{"1":"Plantae","2":"var.","3":"1","_rn_":"8"},{"1":"Total","2":"-","3":"3063","_rn_":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
 <p>Show the number of taxa per red list and taxonomic group:</p>
-<pre class="r"><code>input_data %&gt;%
-  group_by(source_red_list, taxonomic_group) %&gt;%
-  summarize(
-    `taxa` = n()
-  ) %&gt;%
-  adorn_totals(&quot;row&quot;)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["source_red_list"],"name":[1],"type":["chr"],"align":["left"]},{"label":["taxonomic_group"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Adriaens et al. (2015)","2":"Ladybirds","3":"39","_rn_":"1"},{"1":"De Knijf (2006)","2":"Dragonflies","3":"66","_rn_":"2"},{"1":"Decleer et al. (2000)","2":"Grasshoppers","3":"39","_rn_":"3"},{"1":"Desender et al. (2008b)","2":"CarabidBeetles","3":"382","_rn_":"4"},{"1":"Devos et al. (2004)","2":"BreedingBirds","3":"211","_rn_":"5"},{"1":"Devos et al. (2016)","2":"BreedingBirds","3":"217","_rn_":"6"},{"1":"Jooris et al. (2012)","2":"Amphibians","3":"16","_rn_":"7"},{"1":"Jooris et al. (2012)","2":"Reptiles","3":"6","_rn_":"8"},{"1":"Lock et al. (2013)","2":"Waterbugs","3":"62","_rn_":"9"},{"1":"Maes and Van Dyck (2001)","2":"Butterflies","3":"68","_rn_":"10"},{"1":"Maes et al. (2012)","2":"Butterflies","3":"70","_rn_":"11"},{"1":"Maes et al. (2014)","2":"Mammals","3":"103","_rn_":"12"},{"1":"Maes et al. (2017)","2":"Grasshoppers","3":"52","_rn_":"13"},{"1":"Thomaes et al. (2015)","2":"SaproxylicBeetles","3":"19","_rn_":"14"},{"1":"Van Landuyt and De Beer (2017)","2":"Hornworts","3":"4","_rn_":"15"},{"1":"Van Landuyt and De Beer (2017)","2":"Liverworts","3":"114","_rn_":"16"},{"1":"Van Landuyt and De Beer (2017)","2":"Mosses","3":"399","_rn_":"17"},{"1":"Van Landuyt et al. (2006)","2":"VascularPlants","3":"1154","_rn_":"18"},{"1":"Verreycken et al. (2014)","2":"FreshwaterFishes","3":"42","_rn_":"19"},{"1":"Total","2":"-","3":"3063","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Show the number of taxa per kingdom and rank:</p>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"infrasp.","3":"8","_rn_":"1"},{"1":"Animalia","2":"sp.","3":"1384","_rn_":"2"},{"1":"Plantae","2":"NA","3":"2","_rn_":"3"},{"1":"Plantae","2":"infrasp.","3":"9","_rn_":"4"},{"1":"Plantae","2":"morph","3":"1","_rn_":"5"},{"1":"Plantae","2":"sp.","3":"1648","_rn_":"6"},{"1":"Plantae","2":"subsp.","3":"10","_rn_":"7"},{"1":"Plantae","2":"var.","3":"1","_rn_":"8"},{"1":"Total","2":"-","3":"3063","_rn_":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Preview data:</p>

@@ -9,8 +9,8 @@ navbar:
       menu:
       - text: "Validated red lists"
         href: dwc_mapping_validated.html
-      - text: "Unvalidated red lists"
-        href: dwc_mapping_unvalidated.html
+      - text: "Non-validated red lists"
+        href: dwc_mapping_nonvalidated.html
   right:
     - icon: fa-github fa-lg
       href: https://github.com/inbo/rl-flanders-checklist
