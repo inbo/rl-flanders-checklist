@@ -99,6 +99,23 @@ input_data %<>% left_join(
   by = c("speciesname_as_published" = "scientificname"))
 ```
 
+## References
+
+Since the source data only includes _codes_ for references, we load an additional file with more complete reference information:
+
+```{r}
+references <- read_csv(here("data", "raw", "references.csv"))
+```
+
+Join source data with references:
+
+```{r}
+input_data %<>% left_join(
+  references,
+  by = c("reference" = "reference", "taxonomic_group" = "taxonomic_group")
+)
+```
+
 ## Preview data
 
 Show the number of taxa per kingdom and rank:
@@ -106,6 +123,17 @@ Show the number of taxa per kingdom and rank:
 ```{r}
 input_data %>%
   group_by(kingdom, rankmarker) %>%
+  summarize(
+    `taxa` = n()
+  ) %>%
+  adorn_totals("row")
+```
+
+Show the number of taxa per red list and taxonomic group:
+
+```{r}
+input_data %>%
+  group_by(source_red_list, taxonomic_group) %>%
   summarize(
     `taxa` = n()
   ) %>%
@@ -379,8 +407,10 @@ distribution %<>% mutate(dwc_eventDate = year_published)
 
 ### source
 
+The source for the distribution information is the red list:
+
 ```{r}
-distribution %<>% mutate(dwc_source = reference)
+distribution %<>% mutate(dwc_source = source_red_list)
 ```
 
 ### occurrenceRemarks

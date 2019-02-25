@@ -19,7 +19,7 @@ VanLanduytDeBeer_2017,Hornworts,Van Landuyt and De Beer (2017),Hill et al. (2007
 VanLanduytDeBeer_2017,Liverworts,Van Landuyt and De Beer (2017),Hill et al. (2007) | Siebel (2005) | Siebel and During (2006)
 VanLanduytDeBeer_2017,Mosses,Van Landuyt and De Beer (2017),Hill et al. (2007) | Siebel (2005) | Siebel and During (2006)
 Criel_1994,Mammals,Criel (1994),
-Bosmans_1994,,Bosmans (1994),
+Bosmans_1994,Waterbugs,Bosmans (1994),
 Bosmans_1994,Waterbeetles,Bosmans (1994),
 Desender_etal_1995,CarabidBeetles,Desender et al. (1995),
 BauwensClaus_1996,Amphibians,Bauwens and Claus (1996),
@@ -35,5 +35,5 @@ Grootaert_etal_2001,EmpididFlies,Grootaert et al. (2001),
 Bonte_etal_2001,Waterbugs,Bonte et al. (2001),
 Dekoninck_etal_2003,Ants,Dekoninck et al. (2003),
 VanLoen_etal_2006,Molluscs,van Loen et al. (2006),
-Scheers (2012),,Scheers (2012),
+Scheers (2012),Waterbeetles,Scheers (2012),
 Lock_etal_2011,Grasshoppers,Lock et al. (2011),
