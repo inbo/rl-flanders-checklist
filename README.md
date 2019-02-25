@@ -8,23 +8,23 @@ This repository contains the functionality to standardize two checklists - the _
 
 The source data is an Access database managed by [Dirk Maes](https://orcid.org/0000-0002-7947-3788) containing **all published red lists for Flanders** ([see included red lists](https://inbo.github.io/rl-flanders-checklist/index.html)). A taxon can appear on multiple red lists. The data are split into two datasets, depending on the type of red list:
 
-* **Validated red lists**: Contains information from red lists that were developed using the IUCN protocol. The database contains species properties for these (`biome`, `biotope`, `cuddliness`, `lifespan`, `mobility`, `nutrient level`, `spine`) which has been included in the Description extension.
+* **Validated red lists**: Contains information from red lists that are considered validated, i.e. which used quantitative criteria and a representative sample of occurrences across all ecological regions in Flanders for red list assessment. The database also contains life-history traits for these (`biome`, `biotope`, `cuddliness`, `lifespan`, `mobility`, `nutrient level`, `spine`) which have been included in the description extension.
 
     [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/validated)
 
-* **Non-validated red lists**: Contains information from red lists that were _not_ developed using the IUCN protocol.
+* **Non-validated red lists**: Contains information from red lists that are considered non-validated, i.e. which did not use the above criteria.
 
     [source data](https://github.com/inbo/rl-flanders-checklist/blob/master/data/raw) (exported from Access, same file) → Darwin Core [mapping script](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html) → generated [Darwin Core files](https://github.com/inbo/rl-flanders-checklist/blob/master/data/processed/nonvalidated)
 
 ## Published dataset
 
 * [Validated red lists on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-validated-checklist)
-* [Validated red lists on GBIF]()
+* [Validated red lists on GBIF](https://doi.org/10.15468/8tk3tk)
 
 ---
 
-* [Non-validated red list on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-unvalidated-checklist)
-* [Non-validated red lists on GBIF]()
+* [Non-validated red list on the IPT](https://ipt.inbo.be/resource?r=rl-flanders-nonvalidated-checklist)
+* [Non-validated red lists on GBIF](https://doi.org/10.15468/54nwog)
 
 ## Repo structure
 
