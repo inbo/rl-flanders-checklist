@@ -120,22 +120,22 @@ input_data %<>% left_join(
 
 ## Preview data
 
-Show the number of taxa per kingdom and rank:
+Show the number of taxa per red list and taxonomic group:
 
-```{r}
+```{r echo = FALSE}
 input_data %>%
-  group_by(kingdom, rankmarker) %>%
+  group_by(source_red_list, taxonomic_group) %>%
   summarize(
     `taxa` = n()
   ) %>%
   adorn_totals("row")
 ```
 
-Show the number of taxa per red list and taxonomic group:
+Show the number of taxa per kingdom and rank:
 
-```{r}
+```{r echo = FALSE}
 input_data %>%
-  group_by(source_red_list, taxonomic_group) %>%
+  group_by(kingdom, rankmarker) %>%
   summarize(
     `taxa` = n()
   ) %>%

@@ -6,7 +6,7 @@ This repository contains the functionality to standardize two checklists - the _
 
 ## Workflow
 
-The source data is an Access database managed by [Dirk Maes](https://orcid.org/0000-0002-7947-3788) containing **all published red lists for Flanders** ([see included red lists](https://inbo.github.io/rl-flanders-checklist/index.html)). A taxon can appear on multiple red lists. The data are split into two datasets, depending on the type of red list:
+The source data is an Access database managed by [Dirk Maes](https://orcid.org/0000-0002-7947-3788) containing **all published red lists for Flanders** (see included [validated](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_validated.html#35_preview_data) and [non-validated](https://inbo.github.io/rl-flanders-checklist/dwc_mapping_nonvalidated.html#35_preview_data) red lists). A taxon can appear on multiple red lists. The data are split into two datasets, depending on the type of red list:
 
 * **Validated red lists**: Contains information from red lists that are considered validated, i.e. which used quantitative criteria and a representative sample of occurrences across all ecological regions in Flanders for red list assessment. The database also contains life-history traits for these (`biome`, `biotope`, `cuddliness`, `lifespan`, `mobility`, `nutrient level`, `spine`) which have been included in the description extension.
 
