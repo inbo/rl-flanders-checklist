@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Dimitri Brosens" />
@@ -14,7 +14,7 @@
 <meta name="author" content="Lien Reyserhove" />
 <meta name="author" content="Dirk Maes" />
 
-<meta name="date" content="2019-02-25" />
+<meta name="date" content="2020-02-07" />
 
 <title>Darwin Core mapping</title>
 
@@ -82,9 +82,7 @@ h6 {
 
 <link rel="stylesheet" href="static/css/custom.css" type="text/css" />
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -98,7 +96,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -203,8 +200,6 @@ $(document).ready(function () {
 });
 </script>
 
-<div class="container-fluid main-container">
-
 <!-- tabsets -->
 
 <style type="text/css">
@@ -249,6 +244,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -261,48 +257,9 @@ $(document).ready(function () {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -316,6 +273,12 @@ $(document).ready(function ()  {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -351,8 +314,6 @@ div.tocify {
 
 .tocify-subheader .tocify-item {
   font-size: 0.90em;
-  padding-left: 25px;
-  text-indent: 0;
 }
 
 .tocify .list-group-item {
@@ -361,6 +322,16 @@ div.tocify {
 
 
 </style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row-fluid">
@@ -419,12 +390,12 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Darwin Core mapping</h1>
-<h3 class="subtitle"><em>For: Non-validated red lists of Flanders, Belgium</em></h3>
-<h4 class="author"><em>Dimitri Brosens</em></h4>
-<h4 class="author"><em>Peter Desmet</em></h4>
-<h4 class="author"><em>Lien Reyserhove</em></h4>
-<h4 class="author"><em>Dirk Maes</em></h4>
-<h4 class="date"><em>2019-02-25</em></h4>
+<h3 class="subtitle">For: Non-validated red lists of Flanders, Belgium</h3>
+<h4 class="author">Dimitri Brosens</h4>
+<h4 class="author">Peter Desmet</h4>
+<h4 class="author">Lien Reyserhove</h4>
+<h4 class="author">Dirk Maes</h4>
+<h4 class="date">2020-02-07</h4>
 
 </div>
 
@@ -502,7 +473,7 @@ library(rgbif)          # To use GBIF services</code></pre>
 <p>Show the number of taxa per kingdom and rank:</p>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"NA","3":"2","_rn_":"1"},{"1":"Animalia","2":"infrasp.","3":"37","_rn_":"2"},{"1":"Animalia","2":"sp.","3":"2569","_rn_":"3"},{"1":"Animalia","2":"var.","3":"1","_rn_":"4"},{"1":"Fungi","2":"infrasp.","3":"1","_rn_":"5"},{"1":"Fungi","2":"sp.","3":"551","_rn_":"6"},{"1":"Total","2":"-","3":"3161","_rn_":"7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["kingdom"],"name":[1],"type":["chr"],"align":["left"]},{"label":["rankmarker"],"name":[2],"type":["chr"],"align":["left"]},{"label":["taxa"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Animalia","2":"infrasp.","3":"37","_rn_":"1"},{"1":"Animalia","2":"sp.","3":"2570","_rn_":"2"},{"1":"Animalia","2":"NA","3":"2","_rn_":"3"},{"1":"Fungi","2":"infrasp.","3":"1","_rn_":"4"},{"1":"Fungi","2":"sp.","3":"551","_rn_":"5"},{"1":"Total","2":"-","3":"3161","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Preview data:</p>
@@ -591,7 +562,7 @@ library(rgbif)          # To use GBIF services</code></pre>
   count()</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"NA","2":"2"},{"1":"infrasp.","2":"38"},{"1":"sp.","2":"3120"},{"1":"var.","2":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"infrasp.","2":"38"},{"1":"sp.","2":"3121"},{"1":"NA","2":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Map values by recoding to the <a href="http://rs.gbif.org/vocabulary/gbif/rank_2015-04-24.xml">GBIF rank vocabulary</a>:</p>
@@ -609,7 +580,7 @@ library(rgbif)          # To use GBIF services</code></pre>
   count()</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["dwc_taxonRank"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"NA","2":"","3":"2"},{"1":"infrasp.","2":"infraspecificname","3":"38"},{"1":"sp.","2":"species","3":"3120"},{"1":"var.","2":"variety","3":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["rankmarker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["dwc_taxonRank"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"infrasp.","2":"infraspecificname","3":"38"},{"1":"sp.","2":"species","3":"3121"},{"1":"NA","2":"","3":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -659,7 +630,7 @@ library(rgbif)          # To use GBIF services</code></pre>
 </div>
 <div id="locationid" class="section level3">
 <h3><span class="header-section-number">5.2.2</span> locationID</h3>
-<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_locationID = &quot;ISO_3166-2:BE-VLG&quot;)</code></pre>
+<pre class="r"><code>distribution %&lt;&gt;% mutate(dwc_locationID = &quot;ISO_3166:BE-VLG&quot;)</code></pre>
 </div>
 <div id="locality" class="section level3">
 <h3><span class="header-section-number">5.2.3</span> locality</h3>
@@ -726,7 +697,7 @@ library(rgbif)          # To use GBIF services</code></pre>
 <pre class="r"><code>distribution %&gt;% head()</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["taxonID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["locationID"],"name":[2],"type":["chr"],"align":["left"]},{"label":["locality"],"name":[3],"type":["chr"],"align":["left"]},{"label":["countryCode"],"name":[4],"type":["chr"],"align":["left"]},{"label":["occurrenceStatus"],"name":[5],"type":["chr"],"align":["left"]},{"label":["threatStatus"],"name":[6],"type":["chr"],"align":["left"]},{"label":["establishmentMeans"],"name":[7],"type":["chr"],"align":["left"]},{"label":["eventDate"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["source"],"name":[9],"type":["chr"],"align":["left"]},{"label":["occurrenceRemarks"],"name":[10],"type":["chr"],"align":["left"]}],"data":[{"1":"INBO_RL_AMP_1996_NONVAL_1","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"EN","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_10","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"NT","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Zeldzaam"},{"1":"INBO_RL_AMP_1996_NONVAL_11","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Momenteel niet bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_12","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Momenteel niet bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_13","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"VU","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Kwetsbaar"},{"1":"INBO_RL_AMP_1996_NONVAL_14","2":"ISO_3166-2:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"NT","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Zeldzaam"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["taxonID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["locationID"],"name":[2],"type":["chr"],"align":["left"]},{"label":["locality"],"name":[3],"type":["chr"],"align":["left"]},{"label":["countryCode"],"name":[4],"type":["chr"],"align":["left"]},{"label":["occurrenceStatus"],"name":[5],"type":["chr"],"align":["left"]},{"label":["threatStatus"],"name":[6],"type":["chr"],"align":["left"]},{"label":["establishmentMeans"],"name":[7],"type":["chr"],"align":["left"]},{"label":["eventDate"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["source"],"name":[9],"type":["chr"],"align":["left"]},{"label":["occurrenceRemarks"],"name":[10],"type":["chr"],"align":["left"]}],"data":[{"1":"INBO_RL_AMP_1996_NONVAL_1","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"EN","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_10","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"NT","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Zeldzaam"},{"1":"INBO_RL_AMP_1996_NONVAL_11","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Momenteel niet bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_12","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"LC","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Momenteel niet bedreigd"},{"1":"INBO_RL_AMP_1996_NONVAL_13","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"VU","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Kwetsbaar"},{"1":"INBO_RL_AMP_1996_NONVAL_14","2":"ISO_3166:BE-VLG","3":"Flanders","4":"BE","5":"present","6":"NT","7":"native","8":"1996","9":"Bauwens and Claus (1996)","10":"Zeldzaam"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Save to CSV:</p>
@@ -752,6 +723,49 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -347,7 +347,7 @@ distribution %<>% mutate(dwc_taxonID = unique_id)
 ### locationID
 
 ```{r}
-distribution %<>% mutate(dwc_locationID = "ISO_3166-2:BE-VLG")
+distribution %<>% mutate(dwc_locationID = "ISO_3166:BE-VLG")
 ```
 
 ### locality
