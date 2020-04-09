@@ -399,10 +399,13 @@ distribution %<>% mutate(dwc_threatStatus = rlc)
 
 ### establishmentMeans
 
+All evaluated species are assumed native:
+
 ```{r}
 distribution %<>% mutate(dwc_establishmentMeans = case_when(
+  rlc %in% c("RE", "CR", "EN", "VU", "NT", "LC", "DD") ~ "native",
   rlc_as_published == "Niet-inheemse broedvogel" ~ "introduced",
-  TRUE ~ "native"
+  TRUE ~ "" # Not evaluated
 ))
 ```
 
