@@ -43,7 +43,7 @@ library(snakecase)      # To convert case of descriptions
 Create a data frame `input_data` from the source data:
 
 ```{r}
-input_data <- read_delim(here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
+input_data <- read_delim(here::here("..", "data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
 Filter on **Validated** taxa:
