@@ -43,7 +43,7 @@ library(snakecase)      # To convert case of descriptions
 Create a data frame `input_data` from the source data:
 
 ```{r}
-input_data <- read_delim(here::here("..", "data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
+input_data <- read_delim(here::here("data", "raw", "tblFlandersRedListsAll.tsv"), delim = "\t")
 ```
 
 Filter on **Validated** taxa:
@@ -106,7 +106,7 @@ input_data %<>% left_join(
 Since the source data only includes _codes_ for references, we load an additional file with more complete reference information:
 
 ```{r}
-references <- read_csv(here("data", "raw", "references.csv"))
+references <- read_csv(here::here("data", "raw", "references.csv"))
 ```
 
 Join source data with references:
